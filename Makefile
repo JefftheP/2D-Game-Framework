@@ -9,27 +9,26 @@ __CXX=cl
 # define output directory
 __OUTPUT=output
 
+# define include directory
+__INCLUDE_DIRS=\include
+
+# define lib directory
+__LIB_DIR=\lib
+
 # define any compile-time flags
-__CXXFLAGS=/Zi /Fe$(__OUTPUT)/
+__CXXFLAGS=/Zi /Fe$(__OUTPUT)/ /I$(__INCLUDE_DIRS) /I$(__LIB_DIR)
 
 __EXECUTABLE=game.exe
 
-# define include directory
-__INCLUDE=include
-
 # define source directory
-__SRC=src
+__SRC_DIR=src/
 
-__EXTERNAL_LIBS= 
-__LIBS=$(EXTERNAL_LIBS)
-# define lib directory
-__LIB=lib
-
+__EXTERNAL_LIBS= lib/SDL2.lib lib/SDL2main.lib
 
 
 game.exe: src\main.cpp
 	if not exist $(__OUTPUT) mkdir $(__OUTPUT)
-	$(__CXX) $(__CXXFLAGS) src\main.cpp $(__LIBS)
+	$(__CXX) $(__CXXFLAGS) src\main.cpp $(__EXTERNAL_LIBS)
 
 .PHONY: clean
 clean:
