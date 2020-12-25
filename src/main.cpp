@@ -3,9 +3,14 @@
 #include <SDL.h>
 #include <stdio.h>
 
+#define WIDTH_FACTOR 16
+#define HEIGHT_FACTOR 9
+#define SCALE 100
+
+
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = WIDTH_FACTOR * SCALE;
+const int SCREEN_HEIGHT = HEIGHT_FACTOR * SCALE;
 
 int main(int argc, char *argv[])
 {
