@@ -6,5 +6,8 @@
         "Bypass",
         "-File",
         ".\\setup.ps1",
-    ]
+    ],
+    "files.associations": {
+        "xlocinfo": "cpp"
+    }
 }
