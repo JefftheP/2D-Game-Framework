@@ -1,0 +1,1 @@
+start  .\output\game.exe
