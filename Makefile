@@ -23,7 +23,7 @@ __EXECUTABLE=game.exe
 # define source directory
 __SRC_DIR=src/
 
-__EXTERNAL_LIBS= shell32.lib lib/SDL2.lib lib/SDL2main.lib lib/SDL2_image.lib
+__EXTERNAL_LIBS= shell32.lib lib/SDL2.lib lib/SDL2main.lib lib/SDL2_image.lib lib/SDL2_ttf.lib
 
 __LINKER_ARGS = /link /LIBPATH:./lib /SUBSYSTEM:CONSOLE
 
