@@ -1,0 +1,64 @@
+Graphics:
+    - Animation
+    - Particles
+    - Shadows
+    - Lighting    
+    Camera:
+        - Camera Movement
+        - Camera Scaling (Zoom)
+        - World coordinates, Camera coordinates & Screen/pixel coordinates
+    - OpenGL
+
+Physics:
+    - Collision
+    - Movement
+    Time:
+        - Slow time
+        - Stop time
+    - Frame Independence
+
+Input:
+    - Gamepad Support
+    - Button Mapping
+    - Special Moves
+    - Command Normals
+
+UI:
+    - HUD
+    - Menu
+    - Character Select
+    - Round Timer
+
+Sound:
+    - Music
+    - Sound Effects
+
+Architecture:
+    - Profiling
+    - Allocation/allocators
+    - Serialization
+    Timing:
+        - High Resolution timing
+        - High Resolution sleep/delay
+    - Configuration files
+    - Multiple Players
+    Resource Loading:
+        - Sprite loading
+    - Multi-threading
+    - Optimization
+
+Gameplay:
+    - State Machines
+    - Blocking
+    - Combo Engine
+    - Cancels
+    - Dash
+    - Run
+    - Air Dash
+    - Jump
+    - Super Jump
+    - Dash Cancel
+    - Micro Dash
+    - Dash brake
+    - Burst
+    - Hitboxes

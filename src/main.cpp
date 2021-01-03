@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
-#include<sstream>
+#include <sstream>
 
 #define WIDTH_FACTOR 16
 #define HEIGHT_FACTOR 9
