@@ -13,12 +13,21 @@
 #define AUDIO_CHUNKSIZE 2048
 
 // extern bool Engine::EngineIsRunning;
-extern Engine::EngineRef Engine::_;
+// extern Engine::EngineRef Engine::_;
 // extern SDL_Color Engine::DEFAULT_TEXT_COLOR;
 
 int Engine::EngineInit(EngineInfo *info)
 {
     int statusCode = 0;
+
+    if (info->baseTextColor != NULL)
+    {
+        Engine::DEFAULT_TEXT_COLOR = {
+            info->baseTextColor->r,
+            info->baseTextColor->b,
+            info->baseTextColor->g,
+            info->baseTextColor->a};
+    }
 
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0)
         return FAILED_TO_INITIALIZE_SDL;
@@ -47,13 +56,14 @@ int Engine::EngineInit(EngineInfo *info)
 
     Mix_OpenAudio(AUDIO_FREQUENCY, MIX_DEFAULT_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNKSIZE);
 
-    unsigned int msPerTick = (unsigned int )((1.0f / (float)info->targetTicksPerSecond) * 1000);
+    unsigned int msPerTick = (unsigned int)((1.0f / (float)info->targetTicksPerSecond) * 1000);
     Engine::_.Window = window;
-    Engine::_.WindowRenderer = renderer;
+    SDL_Log("before");
+    Engine::_.WindowRenderer.SetRenderer(renderer);
+    SDL_Log("after");
     Engine::_.timer = Engine::EngineTimer();
     Engine::_.msPerTick = msPerTick;
-
-    // TODO Need a mechanism for creating Joystick References and passing them back to the game
+    /// TODO: Need a mechanism for creating Joystick References and passing them back to the game
 
     return 0;
 }
@@ -83,7 +93,7 @@ int Engine::EngineRun(int (*gameUpdate)(Engine::EngineTick *))
             sum += TIME_PER_TICK_BUFFER[i];
         }
         Engine::AVERAGE_TICKS_DELTA = (float)sum / (float)TICKS_BUFFER_SIZE;
-        float tps = 1000.0f /Engine::AVERAGE_TICKS_DELTA;
+        float tps = 1000.0f / Engine::AVERAGE_TICKS_DELTA;
         SDL_Log("Tick: %u | ms/tick: %f | TPS: %f | delta: %u", Engine::CURRENT_TICK, Engine::AVERAGE_TICKS_DELTA, tps, delta);
 
         end = SDL_GetTicks();
@@ -99,11 +109,9 @@ int Engine::EngineRun(int (*gameUpdate)(Engine::EngineTick *))
 
 int Engine::EngineClose(int gameReturnCode)
 {
-    //Destroy Renderer
-    SDL_DestroyRenderer(Engine::_.WindowRenderer);
-    Engine::_.WindowRenderer = NULL;
+    Engine::_.WindowRenderer.~EngineRenderer();
 
-    //Destroy window
+    // Destroy window
     SDL_DestroyWindow(Engine::_.Window);
     Engine::_.Window = NULL;
 
@@ -123,7 +131,8 @@ SDL_Texture *Engine::GetTexture(std::string path, SDL_Renderer *renderer)
 {
     if (renderer == NULL)
     {
-        renderer = Engine::_.WindowRenderer;
+        renderer = Engine::_.WindowRenderer._renderer;
+        SDL_Log("renderer pointer: %u", renderer);
     }
 
     SDL_Texture *texture = NULL;
@@ -135,7 +144,28 @@ SDL_Texture *Engine::GetTexture(std::string path, SDL_Renderer *renderer)
     }
     else
     {
+        /// TODO: Figure out when we want to do this. Either for all PNGs/Transparent image types. or if a flag is passed
+        int m_real_width = loadedSurface->w, m_real_height = loadedSurface->h;
+        if (loadedSurface->format->BytesPerPixel == 4)
+        {
+            Uint8 *pixels = (Uint8 *)loadedSurface->pixels;
+            for (int y = 0; y < m_real_height; ++y)
+            {
+                for (int x = 0; x < m_real_width; ++x)
+                {
+                    int index = y * loadedSurface->pitch + x * loadedSurface->format->BytesPerPixel;
+                    auto target_pixel = (SDL_Color *)&pixels[index];
+                    target_pixel->r = (Uint8)(target_pixel->r * target_pixel->a / 255.0);
+                    target_pixel->g = (Uint8)(target_pixel->g * target_pixel->a / 255.0);
+                    target_pixel->b = (Uint8)(target_pixel->b * target_pixel->a / 255.0);
+                }
+            }
+        }
+
         texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        SDL_BlendMode target = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
+        SDL_SetTextureBlendMode(texture, target);
+
         if (texture == NULL)
         {
             printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
@@ -166,7 +196,7 @@ void Engine::ReleaseFont(TTF_Font *font)
     font = NULL;
 }
 
-SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_Color *color, SDL_Renderer *renderer)
+SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_Color *color, EngineRenderer *renderer)
 {
     if (color == NULL)
     {
@@ -175,7 +205,7 @@ SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_C
 
     if (renderer == NULL)
     {
-        renderer = Engine::_.WindowRenderer;
+        renderer = &Engine::_.WindowRenderer;
     }
 
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, text.c_str(), *color);
@@ -185,7 +215,7 @@ SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_C
         return NULL;
     }
 
-    SDL_Texture *newTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture *newTexture = SDL_CreateTextureFromSurface(renderer->_renderer, textSurface);
     if (newTexture == NULL)
     {
         printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
@@ -196,4 +226,9 @@ SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_C
 void Engine::Stop()
 {
     Engine::EngineIsRunning = false;
+}
+
+Engine::EngineRenderer *Engine::GetWindowRenderer()
+{
+    return &Engine::_.WindowRenderer;
 }

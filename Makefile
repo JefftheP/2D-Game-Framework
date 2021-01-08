@@ -30,8 +30,7 @@ __EXTERNAL_LIBS= shell32.lib lib/SDL2.lib lib/SDL2main.lib lib/SDL2_image.lib li
 
 __LINKER_ARGS = /link /LIBPATH:./lib /SUBSYSTEM:CONSOLE
 
-__SRC_FILES=src\Engine\engine_functions.cpp src\main.cpp src\Engine\engine_texture.cpp src\Engine\engine_timer.cpp src\Engine\engine_font.cpp
-
+__SRC_FILES=src\Engine\engine_renderer.cpp src\Engine\engine_functions.cpp src\main.cpp src\Engine\engine_texture.cpp src\Engine\engine_timer.cpp src\Engine\engine_font.cpp src\Engine\engine_animation.cpp
 
 
 game.exe: src\main.cpp
