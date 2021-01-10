@@ -40,7 +40,6 @@ int initialXPoint = 0;
 int animMod = 1;
 int lastX = 0;
 
-
 void GameClean()
 {
 	delete currFrame;
@@ -108,10 +107,12 @@ int GameUpdate(Engine::EngineTick *tick)
 			if (e.key.keysym.sym == SDLK_LEFT)
 			{
 				initialXPoint -= 1 * scale;
+				lastX -= 1 * scale;
 			}
 			else if (e.key.keysym.sym == SDLK_RIGHT)
 			{
 				initialXPoint += 1 * scale;
+				lastX += 1 * scale;
 			}
 		}
 	}
