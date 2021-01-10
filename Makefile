@@ -30,14 +30,41 @@ __EXTERNAL_LIBS= shell32.lib lib/SDL2.lib lib/SDL2main.lib lib/SDL2_image.lib li
 
 __LINKER_ARGS = /link /LIBPATH:./lib /SUBSYSTEM:CONSOLE
 
-__SRC_FILES=src\Engine\engine_renderer.cpp src\Engine\engine_functions.cpp src\main.cpp src\Engine\engine_texture.cpp src\Engine\engine_timer.cpp src\Engine\engine_font.cpp src\Engine\engine_animation.cpp
+__SRC_FILES=src\main.cpp
 
+__OBJ_FILES=bin\engine_renderer.obj \
+ 			bin\engine_functions.obj \
+  			bin\engine_texture.obj \
+   			bin\engine_timer.obj \
+    		bin\engine_font.obj \
+	 		bin\engine_animation.obj
 
-game.exe: src\main.cpp
+output\game.exe: src\main.cpp $(__OBJ_FILES)
 	if not exist $(__OUTPUT) mkdir $(__OUTPUT)
-	$(__CXX) $(__CXXFLAGS) $(__SRC_FILES) $(__EXTERNAL_LIBS) $(__LINKER_ARGS)
+	$(__CXX) $(__CXXFLAGS) $(__SRC_FILES) $(__OBJ_FILES) $(__EXTERNAL_LIBS) $(__LINKER_ARGS)
 	copy .\lib\*.dll .\output
-	
+
+bin\engine_animation.obj: src\Engine\engine_animation.cpp
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_animation.cpp
+
+bin\engine_font.obj: src\Engine\engine_font.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_font.cpp
+
+bin\engine_functions.obj: src\Engine\engine_functions.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_functions.cpp
+
+bin\engine_renderer.obj: src\Engine\engine_renderer.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_renderer.cpp
+
+bin\engine_texture.obj: src\Engine\engine_texture.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_texture.cpp
+
+bin\engine_timer.obj: src\Engine\engine_timer.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_timer.cpp
+
+
+src\%.cpp:
+	echo "echoed sub cpp"
 
 .PHONY: clean
 clean:

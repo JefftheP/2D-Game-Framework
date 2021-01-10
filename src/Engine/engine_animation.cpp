@@ -1,11 +1,13 @@
 #include "engine_structs.h"
 
-Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames)
+Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames, bool isLooped, Engine::AnimiationOrientation orientation)
 {
     this->texture = texture;
     this->rects = rects;
     this->totalFrames = totalFrames;
     this->currentFrame = 0;
+    this->isLooped = isLooped;
+    this->orientation = orientation;
 }
 
 SDL_Rect *Engine::EngineAnimation::GetCurrentClip()
@@ -15,10 +17,13 @@ SDL_Rect *Engine::EngineAnimation::GetCurrentClip()
 
 void Engine::EngineAnimation::Advance()
 {
-    /// TODO: Maybe a flag for looping animations so that they can flip back to 0 once the animation is complete;
     if (this->currentFrame < this->totalFrames - 1)
     {
         this->currentFrame++;
+    }
+    else if (this->isLooped)
+    {
+        this->currentFrame = 0;
     }
 }
 
@@ -32,4 +37,9 @@ void Engine::EngineAnimation::Reset(int frame)
     {
         SDL_Log("Attempted to reset animation to an invalid index");
     }
+}
+
+bool Engine::EngineAnimation::IsComplete()
+{
+    return ((!this->isLooped) && this->currentFrame == this->totalFrames - 1);
 }

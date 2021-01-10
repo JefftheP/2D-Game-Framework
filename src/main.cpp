@@ -12,7 +12,9 @@ Engine::EngineTexture *sheet = NULL;
 Engine::EngineFont *font = NULL;
 Engine::EngineTexture *text;
 Engine::EngineAnimation *intro = NULL;
+Engine::EngineAnimation *idle = NULL;
 Engine::EngineTexture *currFrame = NULL;
+Engine::EngineAnimation *currAnim = NULL;
 
 std::string val = "RENDERED TEXT";
 SDL_Rect textRect = {};
@@ -21,16 +23,23 @@ SDL_Rect brockOnScreen = {600, 250, brock.w, brock.h};
 SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 
 #define INTRO_FRAMES 20
+#define IDLE_FRAMES 13
 #define BROCK_Y 600
 #define BROCK_X 250
 SDL_Rect introRects[INTRO_FRAMES];
+SDL_Rect idleRects[IDLE_FRAMES];
 
 const SDL_Rect screen = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
 SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 int aniCounter = 0;
 int scale = 3;
-int initialFooting = 0;
+int initialYPoint = 0;
+int initialXPoint = 0;
+
+int animMod = 1;
+int lastX = 0;
+
 
 void GameClean()
 {
@@ -41,10 +50,13 @@ void GameClean()
 	delete font;
 	delete text;
 	delete intro;
+	delete idle;
+	delete currAnim;
 }
 
 int GameUpdate(Engine::EngineTick *tick)
 {
+
 	/// TODO: Need event convention that is not Direct SDL utilization
 	SDL_Event e;
 
@@ -55,13 +67,56 @@ int GameUpdate(Engine::EngineTick *tick)
 		{
 			Engine::Stop();
 		}
+
+		if (e.type = SDL_KEYDOWN)
+		{
+			switch (e.key.keysym.sym)
+			{
+			case SDLK_1:
+				animMod = 1;
+				break;
+			case SDLK_2:
+				animMod = 2;
+				break;
+			case SDLK_3:
+				animMod = 3;
+				break;
+			case SDLK_4:
+				animMod = 4;
+				break;
+			case SDLK_5:
+				animMod = 5;
+				break;
+			case SDLK_0:
+				animMod = 30;
+				break;
+			case SDLK_r:
+				intro->Reset();
+				currAnim = intro;
+				break;
+			}
+
+			if (e.key.keysym.sym == SDLK_UP)
+			{
+				initialYPoint -= 1 * scale;
+			}
+			else if (e.key.keysym.sym == SDLK_DOWN)
+			{
+				initialYPoint += 1 * scale;
+			}
+
+			if (e.key.keysym.sym == SDLK_LEFT)
+			{
+				initialXPoint -= 1 * scale;
+			}
+			else if (e.key.keysym.sym == SDLK_RIGHT)
+			{
+				initialXPoint += 1 * scale;
+			}
+		}
 	}
 
-	if (intro->currentFrame == intro->totalFrames - 1)
-	{
-		intro->Reset();
-	}
-	SDL_Rect *clip = intro->GetCurrentClip();
+	SDL_Rect *clip = currAnim->GetCurrentClip();
 
 	SDL_Rect frameRect = {
 		brockOnScreen.x + 5,
@@ -75,22 +130,54 @@ int GameUpdate(Engine::EngineTick *tick)
 
 	brockOnScreen.w = clip->w * scale;
 	brockOnScreen.h = clip->h * scale;
-	brockOnScreen.y = initialFooting - (clip->h * scale);
+	/*
+	 * NOTE: There seems to be some notion of an orientation point to animations
+	 * the 'intro' animation seems to be oriented at bottom-center
+	 * the 'idle' animation the seems to be left oriented
+	 */
+	if (currAnim->orientation == Engine::AnimiationOrientation::CENTER)
+	{
+		brockOnScreen.y = initialYPoint - (clip->h * scale);
+		brockOnScreen.x = initialXPoint - ((clip->w * scale) / 2);
+		lastX = brockOnScreen.x;
+	}
+	else
+	{
+		brockOnScreen.y = initialYPoint - (clip->h * scale);
+		brockOnScreen.x = lastX;
+	}
 
-	renderer->DrawRect(&brockOnScreen);
+	// Horizontal Line
+	SDL_Point a = {-1, brockOnScreen.y + clip->h * scale};
+	SDL_Point b = {1601, brockOnScreen.y + clip->h * scale};
+
+	// Vertical Line
+	SDL_Point a2 = {brockOnScreen.x + ((clip->w * scale) / 2), -1};
+	SDL_Point b2 = {brockOnScreen.x + ((clip->w * scale) / 2), 901};
+
 	renderer->Render(sheet, clip, &brockOnScreen);
 	renderer->Render(currFrame, NULL, &frameRect);
+	renderer->DrawRect(&brockOnScreen);
+	renderer->DrawLine(&a, &b);
+	renderer->DrawLine(&a2, &b2);
 
-	if (aniCounter % 2 == 0)
+	if (aniCounter % animMod == 0)
 	{
 		delete currFrame;
-		std::string count = std::to_string(intro->currentFrame);
+		std::string count = std::to_string(currAnim->currentFrame);
 		currFrame = new Engine::EngineTexture(count, font, &white);
-		intro->Advance();
+		if (currAnim->IsComplete())
+		{
+			currAnim = idle;
+		}
+		else
+		{
+			currAnim->Advance();
+		}
 	}
-	++aniCounter;
 
 	renderer->RenderFinalize();
+	++aniCounter;
 
 	return 0;
 }
@@ -184,8 +271,47 @@ int main(int argc, char *argv[])
 			introRects[i].h = endY - introRects[i].y;
 		}
 
-		initialFooting = BROCK_Y + introRects[0].h;
+		baseX = 5;
+		baseY = 519;
+		endY = 638;
+		rowW = 132;
+
+		idleRects[0] = {baseX, baseY, rowW, 0};
+		idleRects[1] = {150, 529, 142, 0};
+		idleRects[2] = {312, 533, 152, 0};
+		idleRects[3] = {490, 544, 153, 0};
+		idleRects[4] = {674, 545, 155, 0};
+		idleRects[5] = {859, 548, 151, 0};
+		idleRects[6] = {1042, 549, 141, 0};
+
+		for (int i = 0; i < 7; i++)
+		{
+			idleRects[i].h = endY - idleRects[i].y;
+		}
+
+		baseX = 5;
+		baseY = 683;
+		endY = 771;
+		rowW = 144;
+
+		idleRects[7] = {baseX, baseY, rowW, 0};
+		idleRects[8] = {172, 681, 146, 0};
+		idleRects[9] = {340, 677, 153, 0};
+		idleRects[10] = {520, 671, 145, 0};
+		idleRects[11] = {698, 665, 153, 0};
+		idleRects[12] = {879, 658, 146, 0};
+
+		for (int i = 7; i < 13; i++)
+		{
+			idleRects[i].h = endY - idleRects[i].y;
+		}
+
+		initialYPoint = BROCK_Y + introRects[0].h;
+		initialXPoint = BROCK_X + (introRects[0].w / 2);
+
 		intro = new Engine::EngineAnimation(sheet, introRects, INTRO_FRAMES);
+		idle = new Engine::EngineAnimation(sheet, idleRects, IDLE_FRAMES, true, Engine::AnimiationOrientation::LEFT);
+		currAnim = intro;
 
 		Engine::EngineRun(GameUpdate);
 	}

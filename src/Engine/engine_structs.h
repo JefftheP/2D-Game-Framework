@@ -98,17 +98,26 @@ namespace Engine
         void RenderFinalize();
     };
 
+    enum AnimiationOrientation
+    {
+        CENTER,
+        LEFT
+    };
+
     struct EngineAnimation
     {
         EngineTexture *texture;
         SDL_Rect *rects;
         int totalFrames;
         int currentFrame;
+        bool isLooped;
+        AnimiationOrientation orientation;
 
-        EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames);
+        EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
         SDL_Rect *GetCurrentClip();
         void Advance();
         void Reset(int frame = 0);
+        bool IsComplete();
     };
 
     struct EngineRef
