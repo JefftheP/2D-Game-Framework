@@ -64,7 +64,7 @@ bin\engine_timer.obj: src\Engine\engine_timer.cpp
 
 
 src\%.cpp:
-	echo "echoed sub cpp"
+
 
 .PHONY: clean
 clean:

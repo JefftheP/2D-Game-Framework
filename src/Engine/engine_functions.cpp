@@ -77,11 +77,12 @@ int Engine::EngineRun(int (*gameUpdate)(Engine::EngineTick *))
     {
         start = SDL_GetTicks();
         delta = start - Engine::LAST_TICK_TIME;
+        Engine::LAST_TICK_TIME = SDL_GetTicks();
+
         Engine::TICK.tick = ++Engine::CURRENT_TICK;
         Engine::TICK.delta = delta;
 
         returnCode = gameUpdate(&Engine::TICK);
-        Engine::LAST_TICK_TIME = SDL_GetTicks();
 
         if (TPTCOUNTER == TICKS_BUFFER_SIZE)
             TPTCOUNTER = 0;
@@ -101,6 +102,10 @@ int Engine::EngineRun(int (*gameUpdate)(Engine::EngineTick *))
         if (fullDuration < Engine::_.msPerTick)
         {
             SDL_Delay(Engine::_.msPerTick - fullDuration);
+        }
+        else
+        {
+            SDL_Log("Skipped delay :%u | %u", fullDuration, Engine::_.msPerTick);
         }
     }
 

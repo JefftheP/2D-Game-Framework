@@ -114,6 +114,24 @@ int GameUpdate(Engine::EngineTick *tick)
 				initialXPoint += 1 * scale;
 				lastX += 1 * scale;
 			}
+
+			if (e.key.keysym.sym == SDLK_w)
+			{
+				camera.y -= 1 * scale;
+			}
+			else if (e.key.keysym.sym == SDLK_s)
+			{
+				camera.y += 1 * scale;
+			}
+
+			if (e.key.keysym.sym == SDLK_a)
+			{
+				camera.x -= 1 * scale;
+			}
+			else if (e.key.keysym.sym == SDLK_d)
+			{
+				camera.x += 1 * scale;
+			}
 		}
 	}
 
@@ -127,7 +145,7 @@ int GameUpdate(Engine::EngineTick *tick)
 
 	renderer->RenderStart();
 	renderer->Render(bg, &camera, &screen);
-	renderer->Render(text, &textRect, &textRect);
+	// renderer->Render(text, &textRect, &textRect);
 
 	brockOnScreen.w = clip->w * scale;
 	brockOnScreen.h = clip->h * scale;
