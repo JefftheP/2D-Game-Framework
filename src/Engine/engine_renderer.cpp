@@ -19,10 +19,13 @@ void Engine::EngineRenderer::SetRenderer(SDL_Renderer *renderer)
 
 Engine::EngineRenderer::~EngineRenderer()
 {
-    SDL_Log("renderer freed: %u", this->_renderer);
-    // Destroy Renderer
-    SDL_DestroyRenderer(this->_renderer);
-    this->_renderer = NULL;
+    if (this->_renderer != NULL)
+    {
+        SDL_Log("renderer freed: %u", this->_renderer);
+        // Destroy Renderer
+        SDL_DestroyRenderer(this->_renderer);
+        this->_renderer = NULL;
+    }
 }
 
 int Engine::EngineRenderer::RenderStart()
@@ -93,4 +96,9 @@ int Engine::EngineRenderer::DrawRects(const SDL_Rect *rects, int count)
 void Engine::EngineRenderer::RenderFinalize()
 {
     SDL_RenderPresent(this->_renderer);
+}
+
+int Engine::EngineRenderer::SetRenderTarget(Engine::EngineTexture *texture)
+{
+    return SDL_SetRenderTarget(this->_renderer, texture->texture);
 }

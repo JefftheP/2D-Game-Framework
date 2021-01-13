@@ -5,15 +5,16 @@
 
 #include <SDL.h>
 
-namespace Engine {
+namespace Engine
+{
     // TODO: Decide how I want to handle this, dont exactly like the idea of this just floating around
     bool EngineIsRunning = true;
-    
+
     Engine::EngineRef _;
-    
-    SDL_Color DEFAULT_TEXT_COLOR = {0,0,0};
-    
-    // Array of deltas from tick to tick 
+
+    SDL_Color DEFAULT_TEXT_COLOR = {0, 0, 0};
+
+    // Array of deltas from tick to tick
     Uint32 TIME_PER_TICK_BUFFER[TICKS_BUFFER_SIZE] = {};
 
     unsigned char TPTCOUNTER = 0;
@@ -26,4 +27,4 @@ namespace Engine {
     float AVERAGE_TICKS_DELTA = 0.0f;
 
     EngineTick TICK = {0, 0.0f};
-}
+} // namespace Engine

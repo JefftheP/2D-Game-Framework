@@ -37,7 +37,9 @@ __OBJ_FILES=bin\engine_renderer.obj \
   			bin\engine_texture.obj \
    			bin\engine_timer.obj \
     		bin\engine_font.obj \
-	 		bin\engine_animation.obj
+	 		bin\engine_animation.obj \
+			bin\game_character.obj \
+			bin\game_functions.obj
 
 output\game.exe: src\main.cpp $(__OBJ_FILES)
 	if not exist $(__OUTPUT) mkdir $(__OUTPUT)
@@ -61,6 +63,12 @@ bin\engine_texture.obj: src\Engine\engine_texture.cpp
 
 bin\engine_timer.obj: src\Engine\engine_timer.cpp 
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_timer.cpp
+
+bin\game_character.obj: src\Game\game_character.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_character.cpp
+
+bin\game_functions.obj: src\Game\game_functions.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_functions.cpp
 
 
 src\%.cpp:

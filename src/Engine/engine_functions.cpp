@@ -59,9 +59,9 @@ int Engine::EngineInit(EngineInfo *info)
     unsigned int msPerTick = (unsigned int)((1.0f / (float)info->targetTicksPerSecond) * 1000);
     Engine::_.Window = window;
     SDL_Log("before");
-    Engine::_.WindowRenderer.SetRenderer(renderer);
+    Engine::_.WindowRenderer = new Engine::EngineRenderer(renderer);
     SDL_Log("after");
-    Engine::_.timer = Engine::EngineTimer();
+    Engine::_.timer = new Engine::EngineTimer();
     Engine::_.msPerTick = msPerTick;
     /// TODO: Need a mechanism for creating Joystick References and passing them back to the game
 
@@ -114,16 +114,21 @@ int Engine::EngineRun(int (*gameUpdate)(Engine::EngineTick *))
 
 int Engine::EngineClose(int gameReturnCode)
 {
-    Engine::_.WindowRenderer.~EngineRenderer();
+    delete Engine::_.timer;
+    Engine::_.timer = NULL;
 
-    // Destroy window
-    SDL_DestroyWindow(Engine::_.Window);
-    Engine::_.Window = NULL;
+    delete Engine::_.WindowRenderer;
+    Engine::_.WindowRenderer = NULL;
 
     //Quit SDL subsystems
     Mix_Quit();
     IMG_Quit();
     TTF_Quit();
+
+    // Destroy window
+    SDL_DestroyWindow(Engine::_.Window);
+    Engine::_.Window = NULL;
+
     SDL_Quit();
 
     // TODO Need a mechanism for releasing Joystick references
@@ -136,7 +141,7 @@ SDL_Texture *Engine::GetTexture(std::string path, SDL_Renderer *renderer)
 {
     if (renderer == NULL)
     {
-        renderer = Engine::_.WindowRenderer._renderer;
+        renderer = Engine::_.WindowRenderer->_renderer;
         SDL_Log("renderer pointer: %u", renderer);
     }
 
@@ -210,7 +215,7 @@ SDL_Texture *Engine::MakeTextureFromText(std::string text, TTF_Font *font, SDL_C
 
     if (renderer == NULL)
     {
-        renderer = &Engine::_.WindowRenderer;
+        renderer = Engine::_.WindowRenderer;
     }
 
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, text.c_str(), *color);
@@ -235,5 +240,5 @@ void Engine::Stop()
 
 Engine::EngineRenderer *Engine::GetWindowRenderer()
 {
-    return &Engine::_.WindowRenderer;
+    return Engine::_.WindowRenderer;
 }

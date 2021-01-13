@@ -32,8 +32,11 @@ Engine::EngineTexture::EngineTexture(EngineTexture &&engine_texture)
 
 Engine::EngineTexture::~EngineTexture()
 {
-    SDL_Log("texture freed: %u", this->texture);
-    Engine::ReleaseTexture(this->texture);
+    if (this->texture != NULL)
+    {
+        SDL_Log("texture freed: %u", this->texture);
+        Engine::ReleaseTexture(this->texture);
+    }
 }
 
 Engine::EngineTexture::EngineTexture()

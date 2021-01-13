@@ -8,8 +8,11 @@ Engine::EngineFont::EngineFont(std::string path, int ptSize)
 
 Engine::EngineFont::~EngineFont()
 {
-    Engine::ReleaseFont(this->font);
-    this->font = NULL;
+    if (this->font != NULL)
+    {
+        Engine::ReleaseFont(this->font);
+        this->font = NULL;
+    }
 }
 
 Engine::EngineFont::EngineFont()

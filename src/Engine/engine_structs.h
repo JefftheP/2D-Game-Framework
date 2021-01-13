@@ -95,6 +95,8 @@ namespace Engine
         int DrawRect(const SDL_Rect *rect);
         int DrawRects(const SDL_Rect *rects, int count);
 
+        int SetRenderTarget(EngineTexture *texture);
+
         void RenderFinalize();
     };
 
@@ -125,8 +127,8 @@ namespace Engine
         //The window we'll be rendering to
         SDL_Window *Window = NULL;
         //The window renderer
-        EngineRenderer WindowRenderer;
-        EngineTimer timer;
+        EngineRenderer *WindowRenderer = NULL;
+        EngineTimer *timer = NULL;
         unsigned int msPerTick;
     };
 } // namespace Engine

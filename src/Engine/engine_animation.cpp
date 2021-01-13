@@ -43,3 +43,4 @@ bool Engine::EngineAnimation::IsComplete()
 {
     return ((!this->isLooped) && this->currentFrame == this->totalFrames - 1);
 }
+
