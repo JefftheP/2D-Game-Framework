@@ -32,6 +32,7 @@ namespace Game
         INTRO,
         IDLE,
         WALK_FORWARD,
+        RUN,
         WALK_BACKWARD,
         JUMP,
         LAND,
@@ -41,6 +42,8 @@ namespace Game
     struct GameCharacter
     {
         SDL_Point playerPos;
+        // TL corner to star drawing at;
+        SDL_Point drawPoint;
         float acceleration;
         float currSpeed;
         float maxSpeed;

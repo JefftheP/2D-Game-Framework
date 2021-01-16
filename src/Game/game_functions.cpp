@@ -11,6 +11,7 @@ SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 
 #define INTRO_FRAMES 20
 #define IDLE_FRAMES 13
+#define FLOOR_PLANE 875
 SDL_Rect introRects[INTRO_FRAMES];
 SDL_Rect idleRects[IDLE_FRAMES];
 
@@ -39,7 +40,7 @@ void Game::Init()
     BR.x = bg->GetWidth();
     BR.y = bg->GetHeight();
 
-    character = new Game::GameCharacter(800, 450, new Engine::EngineTexture("images/venom.png"));
+    character = new Game::GameCharacter(300, FLOOR_PLANE, new Engine::EngineTexture("images/venom.png"));
     font = new Engine::EngineFont("fonts/OpenSans-Bold.ttf", 28);
 
     int baseX = 8;
@@ -359,7 +360,7 @@ void Game::SetAnimationMod(unsigned int animMod)
 
 unsigned int Game::GetRenderScale()
 {
-    
+
     return Game::RENDER_SCALE;
 }
 
@@ -371,4 +372,9 @@ void Game::SetCamera(SDL_Rect *camera)
 Engine::EngineTexture *Game::GetFrameTexture(Engine::EngineAnimation *animation)
 {
     return new Engine::EngineTexture(std::to_string(animation->currentFrame), font, &white);
+}
+
+SDL_Point *Game::GetBoundaryPoint()
+{
+    return &BR;
 }

@@ -17,4 +17,5 @@ namespace Game
     unsigned int GetRenderScale();
 
     Engine::EngineTexture *GetFrameTexture(Engine::EngineAnimation *animation);
+    SDL_Point *GetBoundaryPoint();
 } // namespace Game

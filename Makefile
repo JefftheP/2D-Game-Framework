@@ -39,7 +39,8 @@ __OBJ_FILES=bin\engine_renderer.obj \
     		bin\engine_font.obj \
 	 		bin\engine_animation.obj \
 			bin\game_character.obj \
-			bin\game_functions.obj
+			bin\game_functions.obj \
+			bin\game_movement.obj
 
 output\game.exe: src\main.cpp $(__OBJ_FILES)
 	if not exist $(__OUTPUT) mkdir $(__OUTPUT)
@@ -70,6 +71,8 @@ bin\game_character.obj: src\Game\game_character.cpp
 bin\game_functions.obj: src\Game\game_functions.cpp 
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_functions.cpp
 
+bin\game_movement.obj: src\Game\game_movement.cpp 
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_movement.cpp
 
 src\%.cpp:
 

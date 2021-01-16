@@ -1,5 +1,6 @@
 #include "game_structs.h"
 #include "game_functions.h"
+#include "game_movement.h"
 
 #include <cmath>
 
@@ -129,48 +130,31 @@ void Game::GameCharacter::SetState(Game::GameCharacterState state)
 
 void Game::GameCharacter::Move(Vector2D move)
 {
-    // int forward = 1;
-    // int backward = -1;
-    float deltaT = 0.016666666666666666; // 60FPS lockstep
-    float time = 1 * deltaT;
-    // float dual = std::sqrtf(2.f);
-    // float coeff = 1.f;
+    this->currSpeed = Game::Move(&(this->playerPos), &(this->v), this->currSpeed, this->acceleration);
+    SDL_Rect *cam = Game::GetCamera();
+    SDL_Point camPoint = {cam->x, cam->y};
+    SDL_Point *boundary = Game::GetBoundaryPoint();
+    Game::Move(&camPoint, &(this->v), (this->currSpeed * 0.80), (this->acceleration * 0.80));
 
-    // if (this->currSpeed < this->maxSpeed)
-    // {
-    float v0 = this->currSpeed;
-    float v1 = v0 + this->acceleration * deltaT;
-    float speed = v1;
-    this->currSpeed = speed;
-    // this->currSpeed = speed;
-
-    // if (std::abs(move.x) + std::abs(move.y) == 2)
-    // {
-    //     coeff = dual;
-    // }
-    // if (move.x == 0 && move.y == 0)
-    // {
-    //     this->currSpeed = 1.f;
-    // }
-
-    if (move.x == -1)
+    if (camPoint.x < 0)
     {
-        this->playerPos.x -= 1 * speed; //coeff * speed;
+        camPoint.x = 0;
     }
-    else if (move.x == 1)
+    if (camPoint.y < 0)
     {
-        this->playerPos.x += 1 * speed; //coeff * speed;
+        camPoint.y = 0;
+    }
+    if (camPoint.x > boundary->x - cam->w)
+    {
+        camPoint.x = boundary->x - cam->w;
+    }
+    if (camPoint.y > boundary->y - cam->h)
+    {
+        camPoint.y = boundary->y - cam->h;
     }
 
-    if (move.y == -1)
-    {
-        this->playerPos.y -= 1 * speed; //coeff * speed;
-    }
-    else if (move.y == 1)
-    {
-        this->playerPos.y += 1 * speed; //coeff * speed;
-    }
-    // }
+    cam->x = camPoint.x;
+    cam->y = camPoint.y;
 }
 
 void Game::GameCharacter::Update(unsigned int buttonMask)
@@ -210,24 +194,24 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 
     if (this->button_state & Game::ButtonState::PRESS_RIGHT)
     {
-        v.x = 1;
-        v.y = 0;
+        this->v.x = 1;
+        this->v.y = 0;
         // newState = Game::GameCharacterState::WALK_FORWARD;
     }
     else if (this->button_state & Game::ButtonState::PRESS_LEFT)
     {
-        v.x = -1;
-        v.y = 0;
+        this->v.x = -1;
+        this->v.y = 0;
         // newState = Game::GameCharacterState::WALK_BACKWARD;
     }
 
     if (this->button_state & Game::ButtonState::PRESS_UP)
     {
-        v.y = -1;
+        this->v.y = -1;
     }
     else if (this->button_state & Game::ButtonState::PRESS_DOWN)
     {
-        v.y = 1;
+        this->v.y = 1;
     }
 
     if (buttonPressed)
@@ -245,61 +229,16 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
             if (this->currSpeed > 1.f)
             {
                 SDL_Log("decelerate x: %u | y: %u", v.x, v.y);
-                // Decelerate
-
-                // int forward = 1;
-                // int backward = -1;
-                float deltaT = 0.016666666666666666; // 60FPS lockstep
-                float time = 1 * deltaT;
-                float deceleration = 3.f;
-                // float dual = std::sqrtf(2.f);
-                // float coeff = 1.f;
-
-                // if (this->currSpeed < this->maxSpeed)
-                // {
-                float v0 = this->currSpeed;
-                float v1 = v0 - deceleration * deltaT;
-                float speed = v1;
-                this->currSpeed = speed;
-                // this->currSpeed = speed;
-
-                // if (std::abs(move.x) + std::abs(move.y) == 2)
-                // {
-                //     coeff = dual;
-                // }
-                // if (v.x == 0 && v.y == 0)
-                // {
-                //     this->currSpeed = 1.f;
-                // }
-
-                if (v.x == -1)
-                {
-                    this->playerPos.x -= 1 * speed; //coeff * speed;
-                }
-                else if (v.x == 1)
-                {
-                    this->playerPos.x += 1 * speed; //coeff * speed;
-                }
-
-                if (v.y == -1)
-                {
-                    this->playerPos.y -= 1 * speed; //coeff * speed;
-                }
-                else if (v.y == 1)
-                {
-                    this->playerPos.y += 1 * speed; //coeff * speed;
-                }
-                // }
+                this->currSpeed = Game::Move(&(this->playerPos), &(this->v), this->currSpeed, -20.f);
             }
             else if (this->currSpeed < 1.f)
             {
                 // Snap to 1.f
                 this->currSpeed = 1.f;
+                this->v.y = 0;
+                this->v.x = 0;
             }
-            // else
-            // {
-            // }
-            // SDL_Log("-------------NOTHING------------");
+
             newState = Game::GameCharacterState::IDLE;
         }
     }
