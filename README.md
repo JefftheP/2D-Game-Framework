@@ -3,16 +3,41 @@
 ```
 PS W:\2D Game Framework> tree . /f
 │   .gitignore
+│   .TODO
 │   Makefile
 │   README.md
 │   setup.ps1
+│   start.bat
+│   vc140.pdb
 │
 ├───.vscode
 │       launch.json
+│       settings.json
 │       tasks.json
 │
 ├───bin
+│       engine_animation.obj
+│       engine_font.obj
+│       engine_functions.obj
+│       engine_renderer.obj
+│       engine_sprite.obj
+│       engine_texture.obj
+│       engine_timer.obj
+│       game_character.obj
+│       game_collision.obj
+│       game_functions.obj
+│       game_movement.obj
+│       main.obj
 │       
+├───fonts
+│       lazy.ttf
+│       OpenSans-Bold.ttf
+│
+├───images
+│       KOF-XIII-Burnt-Remains-Stage.jpg
+│       loaded.png
+│       venom.png
+│
 ├───include
 │       begin_code.h
 │       close_code.h
@@ -47,6 +72,7 @@ PS W:\2D Game Framework> tree . /f
 │       SDL_gesture.h
 │       SDL_haptic.h
 │       SDL_hints.h
+│       SDL_image.h
 │       SDL_joystick.h
 │       SDL_keyboard.h
 │       SDL_keycode.h
@@ -55,6 +81,7 @@ PS W:\2D Game Framework> tree . /f
 │       SDL_main.h
 │       SDL_messagebox.h
 │       SDL_metal.h
+│       SDL_mixer.h
 │       SDL_mouse.h
 │       SDL_mutex.h
 │       SDL_name.h
@@ -97,22 +124,90 @@ PS W:\2D Game Framework> tree . /f
 │       SDL_thread.h
 │       SDL_timer.h
 │       SDL_touch.h
+│       SDL_ttf.h
 │       SDL_types.h
 │       SDL_version.h
 │       SDL_video.h
 │       SDL_vulkan.h
 │
 ├───lib
+│       libFLAC-8.dll
+│       libfreetype-6.dll
+│       libjpeg-9.dll
+│       libmikmod-2.dll
+│       libmodplug-1.dll
+│       libmpg123-0.dll
+│       libogg-0.dll
+│       libopus-0.dll
+│       libopusfile-0.dll
+│       libpng16-16.dll
+│       libtiff-5.dll
+│       libvorbis-0.dll
+│       libvorbisfile-3.dll
+│       libwebp-7.dll
 │       SDL2.dll
 │       SDL2.lib
 │       SDL2main.lib
 │       SDL2test.lib
+│       SDL2_image.dll
+│       SDL2_image.lib
+│       SDL2_mixer.dll
+│       SDL2_mixer.lib
+│       SDL2_ttf.dll
+│       SDL2_ttf.lib
+│       smpeg.dll
+│       zlib1.dll
 │
 ├───output
-│       main.exe
-│       main.ilk
-│       main.pdb
+│       game.exe
+│       game.ilk
+│       game.pdb
+│       libFLAC-8.dll
+│       libfreetype-6.dll
+│       libjpeg-9.dll
+│       libmikmod-2.dll
+│       libmodplug-1.dll
+│       libmpg123-0.dll
+│       libogg-0.dll
+│       libopus-0.dll
+│       libopusfile-0.dll
+│       libpng16-16.dll
+│       libtiff-5.dll
+│       libvorbis-0.dll
+│       libvorbisfile-3.dll
+│       libwebp-7.dll
+│       SDL2.dll
+│       SDL2_image.dll
+│       SDL2_mixer.dll
+│       SDL2_ttf.dll
+│       smpeg.dll
+│       zlib1.dll
 │
 └───src
-        main.cpp
+    │   main.cpp
+    │   
+    ├───Engine
+    │       engine_animation.cpp
+    │       engine_defines.h
+    │       engine_font.cpp
+    │       engine_functions.cpp
+    │       engine_functions.h
+    │       engine_globals.h
+    │       engine_renderer.cpp
+    │       engine_sprite.cpp
+    │       engine_structs.h
+    │       engine_texture.cpp
+    │       engine_timer.cpp
+    │
+    └───Game
+            game_character.cpp
+            game_collision.cpp
+            game_collision.h
+            game_defines.h
+            game_functions.cpp
+            game_functions.h
+            game_globals.h
+            game_movement.cpp
+            game_movement.h
+            game_structs.h
 ```
