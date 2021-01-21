@@ -49,40 +49,43 @@ output\game.exe: src\main.cpp $(__OBJ_FILES)
 	$(__CXX) $(__CXXFLAGS) $(__SRC_FILES) $(__OBJ_FILES) $(__EXTERNAL_LIBS) $(__LINKER_ARGS)
 	copy .\lib\*.dll .\output
 
-bin\engine_animation.obj: src\Engine\engine_animation.cpp
+bin\engine_animation.obj: src\Engine\engine_animation.cpp src\Engine\engine_structs.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_animation.cpp
 
-bin\engine_font.obj: src\Engine\engine_font.cpp 
+bin\engine_font.obj: src\Engine\engine_font.cpp src\Engine\engine_structs.h src\Engine\engine_functions.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_font.cpp
 
-bin\engine_functions.obj: src\Engine\engine_functions.cpp 
+bin\engine_functions.obj: src\Engine\engine_functions.cpp src\Engine\engine_structs.h src\Engine\engine_functions.h src\Engine\engine_globals.h src\Engine\engine_defines.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_functions.cpp
 
-bin\engine_renderer.obj: src\Engine\engine_renderer.cpp 
+bin\engine_renderer.obj: src\Engine\engine_renderer.cpp src\Engine\engine_structs.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_renderer.cpp
 
-bin\engine_texture.obj: src\Engine\engine_texture.cpp 
+bin\engine_texture.obj: src\Engine\engine_texture.cpp  src\Engine\engine_structs.h src\Engine\engine_functions.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_texture.cpp
 
-bin\engine_timer.obj: src\Engine\engine_timer.cpp 
+bin\engine_timer.obj: src\Engine\engine_timer.cpp src\Engine\engine_structs.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_timer.cpp
 
-bin\engine_sprite.obj: src\Engine\engine_sprite.cpp 
+bin\engine_sprite.obj: src\Engine\engine_sprite.cpp src\Engine\engine_structs.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Engine\engine_sprite.cpp
 
-bin\game_character.obj: src\Game\game_character.cpp 
+bin\game_character.obj: src\Game\game_character.cpp src\Game\game_structs.h src\Game\game_functions.h src\Game\game_movement.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_character.cpp
 
-bin\game_functions.obj: src\Game\game_functions.cpp 
+bin\game_functions.obj: src\Game\game_functions.cpp  src\Game\game_functions.h src\Game\game_globals.h  src\Engine\engine_functions.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_functions.cpp
 
-bin\game_movement.obj: src\Game\game_movement.cpp 
+bin\game_movement.obj: src\Game\game_movement.cpp src\Game\game_movement.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_movement.cpp
 
-bin\game_collision.obj: src\Game\game_collision.cpp 
+bin\game_collision.obj: src\Game\game_collision.cpp src\Game\game_collision.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_collision.cpp
 
 src\%.cpp:
+
+
+src\%.h:
 
 
 .PHONY: clean

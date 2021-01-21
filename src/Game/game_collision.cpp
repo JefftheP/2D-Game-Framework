@@ -1,5 +1,6 @@
 #include "game_collision.h"
 
+
 // I didnt test this yet. Think it works? I pen & paper'd it though
 bool Game::LineCollidesWithRect(Game::GameLine *line, SDL_Rect *rect)
 {
