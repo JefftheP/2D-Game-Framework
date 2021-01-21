@@ -12,8 +12,8 @@ SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 #define INTRO_FRAMES 20
 #define IDLE_FRAMES 13
 #define FLOOR_PLANE 875
-SDL_Rect introRects[INTRO_FRAMES];
-SDL_Rect idleRects[IDLE_FRAMES];
+Engine::EngineSprite introRects[INTRO_FRAMES];
+Engine::EngineSprite idleRects[IDLE_FRAMES];
 
 // Horizontal Line
 SDL_Point a;
@@ -57,18 +57,18 @@ void Game::Init()
     // introRects[6] = {843, baseY, 116, row0H};
     // introRects[7] = {986, baseY, 124, row0H};
 
-    introRects[0] = {9, baseY, rowW, 0};
-    introRects[1] = {148, baseY, rowW, 0};
-    introRects[2] = {291, baseY, rowW, 0};
-    introRects[3] = {431, 8, rowW, 0};
-    introRects[4] = {569, baseY, 112, 0};
-    introRects[5] = {704, baseY, 115, 0};
-    introRects[6] = {843, baseY, 116, 0};
-    introRects[7] = {986, baseY, 124, 0};
+    introRects[0] = Engine::EngineSprite{9, baseY, rowW, 0};
+    introRects[1] = Engine::EngineSprite{148, baseY, rowW, 0};
+    introRects[2] = Engine::EngineSprite{291, baseY, rowW, 0};
+    introRects[3] = Engine::EngineSprite{431, 8, rowW, 0};
+    introRects[4] = Engine::EngineSprite{569, baseY, 112, 0};
+    introRects[5] = Engine::EngineSprite{704, baseY, 115, 0};
+    introRects[6] = Engine::EngineSprite{843, baseY, 116, 0};
+    introRects[7] = Engine::EngineSprite{986, baseY, 124, 0};
 
     for (int i = 0; i < 8; i++)
     {
-        introRects[i].h = endY - introRects[i].y;
+        introRects[i].r.h = endY - introRects[i].r.y;
     }
 
     baseX = 7;
@@ -76,32 +76,38 @@ void Game::Init()
     endY = 318;
     rowW = 111;
 
-    introRects[8] = {baseX, baseY, 119, 0};
-    introRects[9] = {146, baseY, 112, 0};
-    introRects[10] = {277, baseY, rowW, 0};
-    introRects[11] = {411, baseY, rowW, 0};
-    introRects[12] = {546, baseY, rowW, 0};
-    introRects[13] = {679, 173, rowW, 0};
-    introRects[14] = {807, baseY, rowW, 0};
-    introRects[15] = {942, baseY, rowW, 0};
-    introRects[16] = {1075, baseY, rowW, 0};
+    introRects[8] = Engine::EngineSprite{baseX, baseY, 119, 0};
+    introRects[9] = Engine::EngineSprite{146, baseY, 112, 0};
+    introRects[10] = Engine::EngineSprite{277, baseY, rowW, 0};
+    introRects[11] = Engine::EngineSprite{411, baseY, rowW, 0};
+    introRects[12] = Engine::EngineSprite{546, baseY, rowW, 0};
+    introRects[13] = Engine::EngineSprite{679, 173, rowW, 0};
+    introRects[14] = Engine::EngineSprite{807, baseY, rowW, 0};
+    introRects[15] = Engine::EngineSprite{942, baseY, rowW, 0};
+    introRects[16] = Engine::EngineSprite{1075, baseY, rowW, 0};
 
     for (int i = 8; i < 17; i++)
     {
-        introRects[i].h = endY - introRects[i].y;
+        introRects[i].r.h = endY - introRects[i].r.y;
     }
 
     baseX = 4;
     baseY = 331;
     endY = 453;
 
-    introRects[17] = {baseX, baseY, 130, 0};
-    introRects[18] = {165, baseY, 139, 0};
-    introRects[19] = {327, baseY, 143, 0};
+    introRects[17] = Engine::EngineSprite{baseX, baseY, 130, 0};
+    introRects[18] = Engine::EngineSprite{165, baseY, 139, 0};
+    introRects[19] = Engine::EngineSprite{327, baseY, 143, 0};
 
     for (int i = 17; i < 20; i++)
     {
-        introRects[i].h = endY - introRects[i].y;
+        introRects[i].r.h = endY - introRects[i].r.y;
+    }
+
+    for (int i = 0; i < 20; i++)
+    {
+        introRects[i].xOffset = -1 * introRects[i].r.w / 2;
+        introRects[i].yOffset = -1 * introRects[i].r.h;
     }
 
     baseX = 5;
@@ -109,17 +115,17 @@ void Game::Init()
     endY = 638;
     rowW = 132;
 
-    idleRects[0] = {baseX, baseY, rowW, 0};
-    idleRects[1] = {150, 529, 142, 0};
-    idleRects[2] = {312, 533, 152, 0};
-    idleRects[3] = {490, 544, 153, 0};
-    idleRects[4] = {674, 545, 155, 0};
-    idleRects[5] = {859, 548, 151, 0};
-    idleRects[6] = {1042, 549, 141, 0};
+    idleRects[0] = Engine::EngineSprite{baseX, baseY, rowW, 0};
+    idleRects[1] = Engine::EngineSprite{150, 529, 142, 0};
+    idleRects[2] = Engine::EngineSprite{312, 533, 152, 0};
+    idleRects[3] = Engine::EngineSprite{490, 544, 153, 0};
+    idleRects[4] = Engine::EngineSprite{674, 545, 155, 0};
+    idleRects[5] = Engine::EngineSprite{859, 548, 151, 0};
+    idleRects[6] = Engine::EngineSprite{1042, 549, 141, 0};
 
     for (int i = 0; i < 7; i++)
     {
-        idleRects[i].h = endY - idleRects[i].y;
+        idleRects[i].r.h = endY - idleRects[i].r.y;
     }
 
     baseX = 5;
@@ -127,16 +133,22 @@ void Game::Init()
     endY = 771;
     rowW = 144;
 
-    idleRects[7] = {baseX, baseY, rowW, 0};
-    idleRects[8] = {172, 681, 146, 0};
-    idleRects[9] = {340, 677, 153, 0};
-    idleRects[10] = {520, 671, 145, 0};
-    idleRects[11] = {698, 665, 153, 0};
-    idleRects[12] = {879, 658, 146, 0};
+    idleRects[7] = Engine::EngineSprite{baseX, baseY, rowW, 0};
+    idleRects[8] = Engine::EngineSprite{172, 681, 146, 0};
+    idleRects[9] = Engine::EngineSprite{340, 677, 153, 0};
+    idleRects[10] = Engine::EngineSprite{520, 671, 145, 0};
+    idleRects[11] = Engine::EngineSprite{698, 665, 153, 0};
+    idleRects[12] = Engine::EngineSprite{879, 658, 146, 0};
 
     for (int i = 7; i < 13; i++)
     {
-        idleRects[i].h = endY - idleRects[i].y;
+        idleRects[i].r.h = endY - idleRects[i].r.y;
+    }
+
+    for (int i = 0; i < 13; i++)
+    {
+        idleRects[i].xOffset = -65;
+        idleRects[i].yOffset = -1 * idleRects[i].r.h;
     }
 
     // initialYPoint = BROCK_Y + introRects[0].h;
@@ -340,7 +352,7 @@ int Game::Render()
     renderer->RenderStart();
     renderer->Render(bg, Game::CAMERA);
 
-    SDL_Rect *clip = character->GetCurrentAnimation()->GetCurrentClip();
+    SDL_Rect *clip = &(character->GetCurrentAnimation()->GetCurrentClip()->r);
 
     character->Render(renderer);
 
@@ -377,4 +389,71 @@ Engine::EngineTexture *Game::GetFrameTexture(Engine::EngineAnimation *animation)
 SDL_Point *Game::GetBoundaryPoint()
 {
     return &BR;
+}
+
+void Game::InputBufferClear(InputBufferEntry *buffer, unsigned int entries)
+{
+    for (int i = 0; i < entries; i++)
+    {
+        buffer->dir = Game::DirectionNotation::NEUTRAL;
+        buffer->dir_store = 0;
+        buffer->buttonMask = 0;
+        for (int j = 0; j < Game::Buttons::TOTAL_BUTTONS; j++)
+        {
+            buffer->buttonStore[j] = 0;
+        }
+        ++buffer;
+    }
+}
+
+void Game::InputBufferInsert(InputBufferEntry *entry, InputBufferEntry *buffer, unsigned int entries)
+{
+    InputBufferEntry oldEntry = {};
+    InputBufferEntry newEntry = {};
+
+    // load first new entry
+    newEntry.dir = entry->dir;
+    newEntry.dir_store = entry->dir_store;
+    newEntry.buttonMask = entry->buttonMask;
+
+    for (int j = 0; j < Game::Buttons::TOTAL_BUTTONS; j++)
+    {
+        newEntry.buttonStore[j] = entry->buttonStore[j];
+    }
+
+    for (int i = 0; i < entries; i++)
+    {
+        // load current buffer entry into old entry
+        oldEntry.dir = buffer->dir;
+        oldEntry.dir_store = buffer->dir_store;
+        oldEntry.buttonMask = buffer->buttonMask;
+
+        for (int j = 0; j < Game::Buttons::TOTAL_BUTTONS; j++)
+        {
+            oldEntry.buttonStore[j] = buffer->buttonStore[j];
+        }
+
+        // load new entry into buffer
+
+        buffer->dir = newEntry.dir;
+        buffer->dir_store = newEntry.dir_store;
+        buffer->buttonMask = newEntry.buttonMask;
+
+        for (int j = 0; j < Game::Buttons::TOTAL_BUTTONS; j++)
+        {
+            buffer->buttonStore[j] = newEntry.buttonStore[j];
+        }
+
+        // load oldEntry entry into newEntry
+        newEntry.dir = oldEntry.dir;
+        newEntry.dir_store = oldEntry.dir_store;
+        newEntry.buttonMask = oldEntry.buttonMask;
+
+        for (int j = 0; j < Game::Buttons::TOTAL_BUTTONS; j++)
+        {
+            newEntry.buttonStore[j] = oldEntry.buttonStore[j];
+        }
+        // increment buffer pointer
+        ++buffer;
+    }
 }

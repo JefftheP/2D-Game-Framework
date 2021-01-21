@@ -18,4 +18,8 @@ namespace Game
 
     Engine::EngineTexture *GetFrameTexture(Engine::EngineAnimation *animation);
     SDL_Point *GetBoundaryPoint();
+
+    void InputBufferClear(InputBufferEntry *buffer, unsigned int entries = INPUT_BUFFER_SIZE);
+    void InputBufferInsert(InputBufferEntry *entry, InputBufferEntry *buffer, unsigned int entries = INPUT_BUFFER_SIZE);
+
 } // namespace Game

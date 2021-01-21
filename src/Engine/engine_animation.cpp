@@ -1,18 +1,18 @@
 #include "engine_structs.h"
 
-Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames, bool isLooped, Engine::AnimiationOrientation orientation)
+Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, Engine::EngineSprite *sprites, int totalFrames, bool isLooped, Engine::AnimiationOrientation orientation)
 {
     this->texture = texture;
-    this->rects = rects;
+    this->sprites = sprites;
     this->totalFrames = totalFrames;
     this->currentFrame = 0;
     this->isLooped = isLooped;
     this->orientation = orientation;
 }
 
-SDL_Rect *Engine::EngineAnimation::GetCurrentClip()
+Engine::EngineSprite *Engine::EngineAnimation::GetCurrentClip()
 {
-    return &(this->rects[this->currentFrame]);
+    return &(this->sprites[this->currentFrame]);
 }
 
 void Engine::EngineAnimation::Advance()
@@ -43,4 +43,3 @@ bool Engine::EngineAnimation::IsComplete()
 {
     return ((!this->isLooped) && this->currentFrame == this->totalFrames - 1);
 }
-

@@ -12,6 +12,7 @@ namespace Engine
     struct EngineRenderer;
     struct EngineRenderedText;
     struct EngineRef;
+    struct EngineSprite;
     struct EngineAnimation;
 
     struct EngineTimer
@@ -106,17 +107,30 @@ namespace Engine
         LEFT
     };
 
+    struct EngineSprite
+    {
+        SDL_Rect r;
+        int xOffset;
+        int yOffset;
+
+        EngineSprite();
+        EngineSprite(int x, int y, int w, int h, int xOffset = 0, int yOffset = 0);
+        ~EngineSprite();
+        int GetXOffset(int scale = 1);
+        int GetYOffset(int scale = 1);
+    };
+
     struct EngineAnimation
     {
         EngineTexture *texture;
-        SDL_Rect *rects;
+        EngineSprite *sprites;
         int totalFrames;
         int currentFrame;
         bool isLooped;
         AnimiationOrientation orientation;
 
-        EngineAnimation(EngineTexture *texture, SDL_Rect *rects, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
-        SDL_Rect *GetCurrentClip();
+        EngineAnimation(EngineTexture *texture, EngineSprite *rects, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
+        EngineSprite *GetCurrentClip();
         void Advance();
         void Reset(int frame = 0);
         bool IsComplete();

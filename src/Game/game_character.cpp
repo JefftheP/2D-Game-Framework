@@ -37,7 +37,7 @@ Game::GameCharacter::~GameCharacter()
         frame = NULL;
     }
 
-    for (int i = 0; i < Game::GameCharacterState::TOTAL; i++)
+    for (int i = 0; i < Game::GameCharacterState::TOTAL_STATES; i++)
     {
         if (this->animations[i] != NULL)
         {
@@ -47,11 +47,11 @@ Game::GameCharacter::~GameCharacter()
     }
 }
 
-void Game::GameCharacter::Init(Engine::EngineTexture *texture, Engine::EngineAnimation *animations[Game::GameCharacterState::TOTAL])
+void Game::GameCharacter::Init(Engine::EngineTexture *texture, Engine::EngineAnimation *animations[Game::GameCharacterState::TOTAL_STATES])
 {
     if (animations != NULL)
     {
-        for (int i = 0; i > Game::GameCharacterState::TOTAL; i++)
+        for (int i = 0; i > Game::GameCharacterState::TOTAL_STATES; i++)
         {
             this->animations[i] = animations[i];
         }
@@ -65,29 +65,33 @@ void Game::GameCharacter::SetTexture(Engine::EngineTexture *texture)
     this->texture = texture;
 }
 
-void Game::GameCharacter::SetAnimation(GameCharacterState state, SDL_Rect *rects, unsigned int totalCount, bool isLooped, Engine::AnimiationOrientation orientation)
+void Game::GameCharacter::SetAnimation(GameCharacterState state, Engine::EngineSprite *sprites, unsigned int totalCount, bool isLooped, Engine::AnimiationOrientation orientation)
 {
-    this->animations[state] = new Engine::EngineAnimation(this->texture, rects, totalCount, isLooped, orientation);
+    this->animations[state] = new Engine::EngineAnimation(this->texture, sprites, totalCount, isLooped, orientation);
 }
 
 void Game::GameCharacter::Render(Engine::EngineRenderer *renderer)
 {
     Engine::EngineAnimation *currAnim = this->GetCurrentAnimation();
-    SDL_Rect *clip = currAnim->GetCurrentClip();
+    Engine::EngineSprite *clip = currAnim->GetCurrentClip();
+    SDL_Rect *clipR = &(clip->r);
     SDL_Rect *camera = Game::GetCamera();
     int scale = Game::GetRenderScale();
 
-    if (currAnim->orientation == Engine::AnimiationOrientation::CENTER)
-    {
-        onScreen.y = this->playerPos.y - (clip->h * scale);
-        onScreen.x = this->playerPos.x - ((clip->w * scale) / 2) - camera->x;
-        // lastX = brockOnScreen.x;
-    }
-    else
-    {
-        onScreen.y = this->playerPos.y - (clip->h * scale);
-        onScreen.x = this->playerPos.x;
-    }
+    // if (currAnim->orientation == Engine::AnimiationOrientation::CENTER)
+    // {
+    //     onScreen.y = this->playerPos.y - (clip->h * scale);
+    //     onScreen.x = this->playerPos.x - ((clip->w * scale) / 2) - camera->x;
+    //     // lastX = brockOnScreen.x;
+    // }
+    // else
+    // {
+    //     onScreen.y = this->playerPos.y - (clip->h * scale);
+    //     onScreen.x = this->playerPos.x;
+    // }
+
+    onScreen.y = this->playerPos.y + clip->GetYOffset(scale);
+    onScreen.x = this->playerPos.x + clip->GetXOffset(scale); //- camera->x;
 
     // Horizontal Line
     SDL_Point a = {1, this->playerPos.y};
@@ -97,10 +101,10 @@ void Game::GameCharacter::Render(Engine::EngineRenderer *renderer)
     SDL_Point a2 = {this->playerPos.x, 1};
     SDL_Point b2 = {this->playerPos.x, 899};
 
-    onScreen.w = clip->w * Game::GetRenderScale();
-    onScreen.h = clip->h * Game::GetRenderScale();
+    onScreen.w = clipR->w * Game::GetRenderScale();
+    onScreen.h = clipR->h * Game::GetRenderScale();
 
-    renderer->Render(this->texture, clip, &onScreen);
+    renderer->Render(this->texture, clipR, &onScreen);
     renderer->DrawRect(&onScreen);
 
     border.x = onScreen.x + 5;
@@ -164,7 +168,7 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
     Game::GameCharacterState newState = this->currState;
     // Game::Vector2D v;
 
-    if ((buttonMask & Game::ButtonState::RELEASE_UP) != Game::ButtonState::RELEASE_UP) // If if up button was not released
+    if ((buttonMask & Game::ButtonState::RELEASE_UP) != Game::ButtonState::RELEASE_UP) // if up button was not released
     {
         // SDL_Log("in up");
         // keep the same UP state on the character, or the up value that just came in
@@ -192,27 +196,66 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 
     bool buttonPressed = (this->button_state & (Game::ButtonState::PRESS_UP | Game::ButtonState::PRESS_DOWN | Game::ButtonState::PRESS_LEFT | Game::ButtonState::PRESS_RIGHT)) > 0;
 
+    InputBufferEntry entry = {};
+    entry.buttonMask = this->button_state;
+    entry.dir_store = 1;
+
     if (this->button_state & Game::ButtonState::PRESS_RIGHT)
     {
         this->v.x = 1;
         this->v.y = 0;
         // newState = Game::GameCharacterState::WALK_FORWARD;
+        entry.dir = DirectionNotation::FORWARD;
     }
     else if (this->button_state & Game::ButtonState::PRESS_LEFT)
     {
         this->v.x = -1;
         this->v.y = 0;
         // newState = Game::GameCharacterState::WALK_BACKWARD;
+        entry.dir = DirectionNotation::BACK;
     }
 
     if (this->button_state & Game::ButtonState::PRESS_UP)
     {
         this->v.y = -1;
+        if (entry.dir == DirectionNotation::BACK)
+        {
+            entry.dir = DirectionNotation::UP_BACK;
+        }
+        else if (entry.dir == DirectionNotation::FORWARD)
+        {
+            entry.dir = DirectionNotation::UP_FORWARD;
+        }
+        else
+        {
+            entry.dir = DirectionNotation::UP;
+        }
     }
     else if (this->button_state & Game::ButtonState::PRESS_DOWN)
     {
         this->v.y = 1;
+        if (entry.dir == DirectionNotation::BACK)
+        {
+            entry.dir = DirectionNotation::DOWN_BACK;
+        }
+        else if (entry.dir == DirectionNotation::FORWARD)
+        {
+            entry.dir = DirectionNotation::DOWN_FORWARD;
+        }
+        else
+        {
+            entry.dir = DirectionNotation::DOWN;
+        }
     }
+
+    // check for direction store
+    if (this->inputBuffer[0].dir == entry.dir)
+    {
+        entry.dir_store = this->inputBuffer[0].dir_store + 1;
+        SDL_Log("Dir store: %u", entry.dir_store);
+    }
+
+    Game::InputBufferInsert(&entry, this->inputBuffer);
 
     if (buttonPressed)
     {

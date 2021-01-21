@@ -49,6 +49,13 @@ Architecture:
 
 Gameplay:
     - State Machines
+        # Need some kind of state graph
+        # States need to hold animation
+        # Need some kind of State Manager to check for available state traversal
+        # Need things to happen dynamically depending on State and frame number of animation
+            # Make a Hit box
+            # Make a Hurt box
+            # Alter character state
     - Blocking
     - Combo Engine
     - Cancels

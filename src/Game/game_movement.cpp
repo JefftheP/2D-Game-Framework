@@ -25,6 +25,5 @@ float Game::Move(SDL_Point *p, Vector2D *v, float initSpeed, float accelearation
     p->x += v->x * displacement;
     p->y += v->y * displacement;
 
-
     return speed;
 }
