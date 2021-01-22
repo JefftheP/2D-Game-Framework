@@ -94,11 +94,18 @@ namespace Game
     {
         INTRO,
         IDLE,
-        WALK_FORWARD,
-        RUN,
-        WALK_BACKWARD,
-        JUMP,
-        LAND,
+        //  CROUCHING, // crouching is another state?
+        BLOCKING,
+        REELING,
+        WALKING_FORWARD,
+        WALKING_BACKWARD,
+        JUMPING,
+        FALLING,
+        SUPER_JUMPING,
+        RUNNING,
+        LANDING,
+        SLIDING,
+        ATTACKING,
         TOTAL_STATES
     };
 

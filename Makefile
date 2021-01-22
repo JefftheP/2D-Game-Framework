@@ -42,7 +42,8 @@ __OBJ_FILES=bin\engine_renderer.obj \
 			bin\game_character.obj \
 			bin\game_functions.obj \
 			bin\game_movement.obj \
-			bin\game_collision.obj
+			bin\game_collision.obj \
+			bin\game_character_states.obj
 
 output\game.exe: src\main.cpp $(__OBJ_FILES)
 	if not exist $(__OUTPUT) mkdir $(__OUTPUT)
@@ -81,6 +82,10 @@ bin\game_movement.obj: src\Game\game_movement.cpp src\Game\game_movement.h
 
 bin\game_collision.obj: src\Game\game_collision.cpp src\Game\game_collision.h
 	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_collision.cpp
+
+bin\game_character_states.obj: src\Game\game_character_states.cpp src\Game\game_character_states.h src\Game\game_structs.h
+	$(__CXX) /c /Fo$(__OBJ_DIR) /I$(__INCLUDE_DIRS) /I$(__LIB_DIR) src\Game\game_character_states.cpp
+
 
 src\%.cpp:
 
