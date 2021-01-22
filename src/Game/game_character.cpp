@@ -4,7 +4,6 @@
 
 #include <cmath>
 
-unsigned int aniCounter = 0;
 SDL_Rect border;
 
 Engine::EngineTexture *frame;
@@ -15,21 +14,20 @@ Game::GameCharacter::GameCharacter()
     this->currSpeed = 1.f;
 }
 
-Game::GameCharacter::GameCharacter(int x, int y, Engine::EngineTexture *texture)
+Game::GameCharacter::GameCharacter(int x, int y)
 {
     this->playerPos = {x, y};
     this->currSpeed = 1.f;
     this->acceleration = 10.f;
-    this->texture = texture;
 }
 
 Game::GameCharacter::~GameCharacter()
 {
-    if (this->texture != NULL)
-    {
-        delete this->texture;
-        this->texture = NULL;
-    }
+    // if (this->texture != NULL)
+    // {
+    //     delete this->texture;
+    //     this->texture = NULL;
+    // }
 
     if (frame != NULL)
     {
@@ -47,7 +45,7 @@ Game::GameCharacter::~GameCharacter()
     }
 }
 
-void Game::GameCharacter::Init(Engine::EngineTexture *texture, CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES])
+void Game::GameCharacter::Init(CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES])
 {
     if (states != NULL)
     {
@@ -56,13 +54,6 @@ void Game::GameCharacter::Init(Engine::EngineTexture *texture, CharacterStateMan
             this->stateManagers[i] = states[i];
         }
     }
-
-    this->texture = texture;
-}
-
-void Game::GameCharacter::SetTexture(Engine::EngineTexture *texture)
-{
-    this->texture = texture;
 }
 
 void Game::GameCharacter::SetStateManager(CharacterStateManager *stateManager)
@@ -74,6 +65,7 @@ void Game::GameCharacter::Render(Engine::EngineRenderer *renderer)
 {
     Engine::EngineAnimation *currAnim = this->GetCurrentStateManager()->GetAnimation();
     Engine::EngineSprite *clip = currAnim->GetCurrentClip();
+    SDL_Log("current clip, x: %u, y:%u, w:%u, h:%u", clip->r.x, clip->r.y, clip->r.w, clip->r.h);
     SDL_Rect *clipR = &(clip->r);
     SDL_Rect *camera = Game::GetCamera();
     int scale = Game::GetRenderScale();
@@ -104,7 +96,7 @@ void Game::GameCharacter::Render(Engine::EngineRenderer *renderer)
     onScreen.w = clipR->w * Game::GetRenderScale();
     onScreen.h = clipR->h * Game::GetRenderScale();
 
-    renderer->Render(this->texture, clipR, &onScreen);
+    renderer->Render(currAnim->GetCurrentTexture(), clipR, &onScreen);
     renderer->DrawRect(&onScreen);
 
     border.x = onScreen.x + 5;
@@ -250,7 +242,7 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
     // check for direction store
     if (this->inputBuffer[0].dir == entry.dir)
     {
-        entry.dir_store = this->inputBuffer[0].dir_store + 1;
+        entry.dir_store = this->inputBuffer[0].dir_store != 255 ? this->inputBuffer[0].dir_store + 1 : 255;
         SDL_Log("Dir store: %u", entry.dir_store);
     }
 
@@ -268,7 +260,7 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 void Game::GameCharacter::Animate()
 {
     this->someCounter++;
-    if (aniCounter % Game::GetAnimationMod() == 0)
+    if (this->aniCounter % Game::GetAnimationMod() == 0)
     {
         if (frame != NULL)
         {
@@ -278,7 +270,7 @@ void Game::GameCharacter::Animate()
         /// TODO: Decide whether it makes sense for the character to be driving the animation or if this should also be a function pointer;
         this->currStateManager->GetAnimation()->Advance();
     }
-    ++aniCounter;
+    ++this->aniCounter;
 }
 
 Game::CharacterStateManager *Game::GameCharacter::GetCurrentStateManager()

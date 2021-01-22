@@ -109,28 +109,33 @@ namespace Engine
 
     struct EngineSprite
     {
+        EngineTexture *texture;
         SDL_Rect r;
         int xOffset;
         int yOffset;
 
-        EngineSprite();
-        EngineSprite(int x, int y, int w, int h, int xOffset = 0, int yOffset = 0);
+        EngineSprite(EngineTexture *texture = NULL);
+        EngineSprite(int x, int y, int w, int h, int xOffset = 0, int yOffset = 0, EngineTexture *texture = NULL);
         ~EngineSprite();
         int GetXOffset(int scale = 1);
         int GetYOffset(int scale = 1);
+        EngineSprite &Engine::EngineSprite::operator=(Engine::EngineSprite &b);
     };
 
     struct EngineAnimation
     {
-        EngineTexture *texture;
+        EngineTexture *texture = NULL;
         EngineSprite *sprites;
         int totalFrames;
         int currentFrame;
         bool isLooped;
         AnimiationOrientation orientation;
 
-        EngineAnimation(EngineTexture *texture, EngineSprite *sprites, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
+        EngineAnimation(EngineSprite *sprites, int totalFrames, bool isLooped = false, AnimiationOrientation orientation = AnimiationOrientation::CENTER, EngineTexture *texture = NULL);
+
         EngineSprite *GetCurrentClip();
+        EngineTexture *GetCurrentTexture();
+
         void Advance();
         void Reset(int frame = 0);
         bool IsComplete();

@@ -128,6 +128,7 @@ namespace Game
 
     struct GameCharacter
     {
+        unsigned int aniCounter = 0;
         SDL_Point playerPos;
         // TL corner to star drawing at;
         SDL_Point drawPoint;
@@ -140,20 +141,19 @@ namespace Game
         unsigned int button_state = 0;
         InputBufferEntry inputBuffer[INPUT_BUFFER_SIZE];
 
-        Engine::EngineTexture *texture = NULL;
+        // Engine::EngineTexture *texture = NULL;
         CharacterStateManager *currStateManager = NULL;
         CharacterStateManager *stateManagers[GameCharacterState::TOTAL_STATES];
 
         GameCharacter();
-        GameCharacter(int x, int y, Engine::EngineTexture *texture);
+        GameCharacter(int x, int y);
         ~GameCharacter();
 
         void SetAcceleration(float a);
         void SetMaxSpeed(float a);
         void SetState(GameCharacterState state);
 
-        void Init(Engine::EngineTexture *texture, CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES] = NULL);
-        void SetTexture(Engine::EngineTexture *texture);
+        void Init(CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES] = NULL);
         void SetStateManager(CharacterStateManager *stateManager);
         void Animate();
         void Render(Engine::EngineRenderer *renderer);

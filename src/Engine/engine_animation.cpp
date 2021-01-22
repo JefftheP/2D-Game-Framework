@@ -1,6 +1,6 @@
 #include "engine_structs.h"
 
-Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, Engine::EngineSprite *sprites, int totalFrames, bool isLooped, Engine::AnimiationOrientation orientation)
+Engine::EngineAnimation::EngineAnimation(EngineSprite *sprites, int totalFrames, bool isLooped, AnimiationOrientation orientation, EngineTexture *texture)
 {
     this->texture = texture;
     this->sprites = sprites;
@@ -13,6 +13,16 @@ Engine::EngineAnimation::EngineAnimation(EngineTexture *texture, Engine::EngineS
 Engine::EngineSprite *Engine::EngineAnimation::GetCurrentClip()
 {
     return &(this->sprites[this->currentFrame]);
+}
+
+Engine::EngineTexture *Engine::EngineAnimation::GetCurrentTexture()
+{
+    SDL_Log("current texture: %u", this->sprites[this->currentFrame].texture);
+    if (this->sprites[this->currentFrame].texture == NULL)
+    {
+        return this->texture;
+    }
+    return this->sprites[this->currentFrame].texture;
 }
 
 void Engine::EngineAnimation::Advance()

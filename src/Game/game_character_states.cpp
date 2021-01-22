@@ -20,6 +20,7 @@ Engine::EngineAnimation *CharacterStateManager::GetAnimation()
 void Game::IntroStateInit(GameCharacter *character)
 {
     IntroState *state = (IntroState *)(character->GetCurrentStateManager());
+    character->aniCounter = 0;
     state->GetAnimation()->Reset();
 }
 
@@ -56,6 +57,7 @@ IntroState::~IntroState() {}
 void Game::IdleStateInit(GameCharacter *character)
 {
     IdleState *state = (IdleState *)(character->GetCurrentStateManager());
+    character->aniCounter = 0;
     state->GetAnimation()->Reset();
 }
 
@@ -67,13 +69,17 @@ void Game::IdleStateUpdate(GameCharacter *character)
 
     if (character->button_state & Game::ButtonState::PRESS_RIGHT)
     {
-        character->v.x = 1;
-        character->v.y = 0;
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::WALKING_FORWARD);
+        character->GetCurrentStateManager()->update(character);
+        return;
     }
     else if (character->button_state & Game::ButtonState::PRESS_LEFT)
     {
-        character->v.x = -1;
-        character->v.y = 0;
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::WALKING_BACKWARD);
+        character->GetCurrentStateManager()->update(character);
+        return;
     }
 
     if (character->button_state & Game::ButtonState::PRESS_UP)
@@ -177,10 +183,53 @@ ReelingState::~ReelingState() {}
 
 void Game::WalkingForwardStateInit(GameCharacter *character)
 {
+    WalkingForwardState *state = (WalkingForwardState *)(character->GetCurrentStateManager());
+    character->aniCounter = 0;
+    state->GetAnimation()->Reset();
 }
+
 void Game::WalkingForwardStateUpdate(GameCharacter *character)
 {
+    WalkingForwardState *state = (WalkingForwardState *)(character->GetCurrentStateManager());
+    Game::InputBufferEntry entry = character->inputBuffer[0];
+    bool buttonPressed = entry.dir != Game::DirectionNotation::NEUTRAL;
+
+    if (character->button_state & Game::ButtonState::PRESS_RIGHT)
+    {
+        character->v.x = 1;
+        character->v.y = 0;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_LEFT)
+    {
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::WALKING_BACKWARD);
+        character->GetCurrentStateManager()->update(character);
+        return;
+    }
+
+    if (character->button_state & Game::ButtonState::PRESS_UP)
+    {
+        character->v.y = -1;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_DOWN)
+    {
+        character->v.y = 1;
+    }
+
+    if (buttonPressed)
+    {
+        // SDL_Log("buttons pressed");
+        character->Move(character->v);
+    }
+    else
+    {
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::IDLE);
+        character->GetCurrentStateManager()->update(character);
+        return;
+    }
 }
+
 void Game::WalkingForwardStateCleanup(GameCharacter *character)
 {
 }
@@ -201,9 +250,51 @@ WalkingForwardState::~WalkingForwardState() {}
 
 void Game::WalkingBackwardStateInit(GameCharacter *character)
 {
+    WalkingBackwardState *state = (WalkingBackwardState *)(character->GetCurrentStateManager());
+    character->aniCounter = 0;
+    state->GetAnimation()->Reset();
 }
+
 void Game::WalkingBackwardStateUpdate(GameCharacter *character)
 {
+    WalkingBackwardState *state = (WalkingBackwardState *)(character->GetCurrentStateManager());
+    Game::InputBufferEntry entry = character->inputBuffer[0];
+    bool buttonPressed = entry.dir != Game::DirectionNotation::NEUTRAL;
+
+    if (character->button_state & Game::ButtonState::PRESS_RIGHT)
+    {
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::WALKING_FORWARD);
+        character->GetCurrentStateManager()->update(character);
+        return;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_LEFT)
+    {
+        character->v.x = -1;
+        character->v.y = 0;
+    }
+
+    if (character->button_state & Game::ButtonState::PRESS_UP)
+    {
+        character->v.y = -1;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_DOWN)
+    {
+        character->v.y = 1;
+    }
+
+    if (buttonPressed)
+    {
+        // SDL_Log("buttons pressed");
+        character->Move(character->v);
+    }
+    else
+    {
+        state->cleanup(character);
+        character->SetState(Game::GameCharacterState::IDLE);
+        character->GetCurrentStateManager()->update(character);
+        return;
+    }
 }
 void Game::WalkingBackwardStateCleanup(GameCharacter *character)
 {

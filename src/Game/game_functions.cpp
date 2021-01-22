@@ -12,9 +12,15 @@ SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 
 #define INTRO_FRAMES 20
 #define IDLE_FRAMES 13
+#define WALK_F_FRAMES 10
+#define WALK_B_FRAMES 10
+
 #define FLOOR_PLANE 875
-Engine::EngineSprite introRects[INTRO_FRAMES];
-Engine::EngineSprite idleRects[IDLE_FRAMES];
+
+Engine::EngineSprite introSprites[INTRO_FRAMES];
+Engine::EngineSprite idleSprites[IDLE_FRAMES];
+Engine::EngineSprite walkForwardSprites[IDLE_FRAMES];
+Engine::EngineSprite walkBackwardSprites[IDLE_FRAMES];
 
 // Horizontal Line
 SDL_Point a;
@@ -41,125 +47,53 @@ void Game::Init()
     BR.x = bg->GetWidth();
     BR.y = bg->GetHeight();
 
-    character = new Game::GameCharacter(300, FLOOR_PLANE, new Engine::EngineTexture("images/venom.png"));
+    character = new Game::GameCharacter(300, FLOOR_PLANE);
     font = new Engine::EngineFont("fonts/OpenSans-Bold.ttf", 28);
 
-    int baseX = 8;
-    int baseY = 15;
-    int rowW = 109;
-    int endY = 160;
-
-    // introRects[0] = {baseX, baseY, 109, row0H};
-    // introRects[1] = {148, baseY, 109, row0H};
-    // introRects[2] = {291, baseY, 109, row0H};
-    // introRects[3] = {429, baseY, 111, row0H};
-    // introRects[4] = {569, baseY, 112, row0H};
-    // introRects[5] = {704, baseY, 115, row0H};
-    // introRects[6] = {843, baseY, 116, row0H};
-    // introRects[7] = {986, baseY, 124, row0H};
-
-    introRects[0] = Engine::EngineSprite{9, baseY, rowW, 0};
-    introRects[1] = Engine::EngineSprite{148, baseY, rowW, 0};
-    introRects[2] = Engine::EngineSprite{291, baseY, rowW, 0};
-    introRects[3] = Engine::EngineSprite{431, 8, rowW, 0};
-    introRects[4] = Engine::EngineSprite{569, baseY, 112, 0};
-    introRects[5] = Engine::EngineSprite{704, baseY, 115, 0};
-    introRects[6] = Engine::EngineSprite{843, baseY, 116, 0};
-    introRects[7] = Engine::EngineSprite{986, baseY, 124, 0};
-
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < INTRO_FRAMES; i++)
     {
-        introRects[i].r.h = endY - introRects[i].r.y;
+        std::string path = "images/venom/intro/" + std::to_string(i) + ".png";
+        SDL_Log("loading sprite:");
+        SDL_Log(path.c_str());
+
+        introSprites[i] = Engine::EngineSprite(new Engine::EngineTexture(path.c_str()));
+        introSprites[i].xOffset = -1 * introSprites[i].r.w / 2;
+        introSprites[i].yOffset = -1 * introSprites[i].r.h;
+    }
+    Game::IntroState *intro = new Game::IntroState(new Engine::EngineAnimation(introSprites, INTRO_FRAMES));
+
+    for (int i = 0; i < IDLE_FRAMES; i++)
+    {
+        std::string path = "images/venom/idle/" + std::to_string(i) + ".png";
+        idleSprites[i] = Engine::EngineSprite(new Engine::EngineTexture(path.c_str()));
+        idleSprites[i].xOffset = -65;
+        idleSprites[i].yOffset = -1 * idleSprites[i].r.h;
+    }
+    Game::IdleState *idle = new Game::IdleState(new Engine::EngineAnimation(idleSprites, IDLE_FRAMES, true, Engine::AnimiationOrientation::LEFT));
+
+    for (int i = 0; i < WALK_F_FRAMES; i++)
+    {
+        std::string path = "images/venom/walk_forward/" + std::to_string(i) + ".png";
+        walkForwardSprites[i] = Engine::EngineSprite(new Engine::EngineTexture(path.c_str()));
+        walkForwardSprites[i].xOffset = -1 * walkForwardSprites[i].r.w / 2;
+        walkForwardSprites[i].yOffset = -1 * walkForwardSprites[i].r.h;
     }
 
-    baseX = 7;
-    baseY = 173;
-    endY = 318;
-    rowW = 111;
+    Game::WalkingForwardState *walkingForward = new Game::WalkingForwardState(new Engine::EngineAnimation(walkForwardSprites, WALK_F_FRAMES, true, Engine::AnimiationOrientation::LEFT));
 
-    introRects[8] = Engine::EngineSprite{baseX, baseY, 119, 0};
-    introRects[9] = Engine::EngineSprite{146, baseY, 112, 0};
-    introRects[10] = Engine::EngineSprite{277, baseY, rowW, 0};
-    introRects[11] = Engine::EngineSprite{411, baseY, rowW, 0};
-    introRects[12] = Engine::EngineSprite{546, baseY, rowW, 0};
-    introRects[13] = Engine::EngineSprite{679, 173, rowW, 0};
-    introRects[14] = Engine::EngineSprite{807, baseY, rowW, 0};
-    introRects[15] = Engine::EngineSprite{942, baseY, rowW, 0};
-    introRects[16] = Engine::EngineSprite{1075, baseY, rowW, 0};
-
-    for (int i = 8; i < 17; i++)
+    for (int i = 0; i < WALK_B_FRAMES; i++)
     {
-        introRects[i].r.h = endY - introRects[i].r.y;
+        std::string path = "images/venom/walk_backward/" + std::to_string(i) + ".png";
+        walkBackwardSprites[i] = Engine::EngineSprite(new Engine::EngineTexture(path.c_str()));
+        walkBackwardSprites[i].xOffset = -1 * walkBackwardSprites[i].r.w / 2;
+        walkBackwardSprites[i].yOffset = -1 * walkBackwardSprites[i].r.h;
     }
-
-    baseX = 4;
-    baseY = 331;
-    endY = 453;
-
-    introRects[17] = Engine::EngineSprite{baseX, baseY, 130, 0};
-    introRects[18] = Engine::EngineSprite{165, baseY, 139, 0};
-    introRects[19] = Engine::EngineSprite{327, baseY, 143, 0};
-
-    for (int i = 17; i < 20; i++)
-    {
-        introRects[i].r.h = endY - introRects[i].r.y;
-    }
-
-    for (int i = 0; i < 20; i++)
-    {
-        introRects[i].xOffset = -1 * introRects[i].r.w / 2;
-        introRects[i].yOffset = -1 * introRects[i].r.h;
-    }
-
-    baseX = 5;
-    baseY = 519;
-    endY = 638;
-    rowW = 132;
-
-    idleRects[0] = Engine::EngineSprite{baseX, baseY, rowW, 0};
-    idleRects[1] = Engine::EngineSprite{150, 529, 142, 0};
-    idleRects[2] = Engine::EngineSprite{312, 533, 152, 0};
-    idleRects[3] = Engine::EngineSprite{490, 544, 153, 0};
-    idleRects[4] = Engine::EngineSprite{674, 545, 155, 0};
-    idleRects[5] = Engine::EngineSprite{859, 548, 151, 0};
-    idleRects[6] = Engine::EngineSprite{1042, 549, 141, 0};
-
-    for (int i = 0; i < 7; i++)
-    {
-        idleRects[i].r.h = endY - idleRects[i].r.y;
-    }
-
-    baseX = 5;
-    baseY = 683;
-    endY = 771;
-    rowW = 144;
-
-    idleRects[7] = Engine::EngineSprite{baseX, baseY, rowW, 0};
-    idleRects[8] = Engine::EngineSprite{172, 681, 146, 0};
-    idleRects[9] = Engine::EngineSprite{340, 677, 153, 0};
-    idleRects[10] = Engine::EngineSprite{520, 671, 145, 0};
-    idleRects[11] = Engine::EngineSprite{698, 665, 153, 0};
-    idleRects[12] = Engine::EngineSprite{879, 658, 146, 0};
-
-    for (int i = 7; i < 13; i++)
-    {
-        idleRects[i].r.h = endY - idleRects[i].r.y;
-    }
-
-    for (int i = 0; i < 13; i++)
-    {
-        idleRects[i].xOffset = -65;
-        idleRects[i].yOffset = -1 * idleRects[i].r.h;
-    }
-
-    // initialYPoint = BROCK_Y + introRects[0].h;
-    // initialXPoint = BROCK_X + (introRects[0].w / 2);
-
-    Game::IntroState *intro = new Game::IntroState(new Engine::EngineAnimation(character->texture, introRects, INTRO_FRAMES));
-    Game::IdleState *idle = new Game::IdleState(new Engine::EngineAnimation(character->texture, idleRects, IDLE_FRAMES, true, Engine::AnimiationOrientation::LEFT));
+    Game::WalkingBackwardState *walkingBackward = new Game::WalkingBackwardState(new Engine::EngineAnimation(walkBackwardSprites, WALK_B_FRAMES, true, Engine::AnimiationOrientation::LEFT));
 
     character->SetStateManager(intro);
     character->SetStateManager(idle);
+    character->SetStateManager(walkingForward);
+    character->SetStateManager(walkingBackward);
     character->SetState(Game::GameCharacterState::INTRO);
 }
 
