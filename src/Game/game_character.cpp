@@ -39,21 +39,21 @@ Game::GameCharacter::~GameCharacter()
 
     for (int i = 0; i < Game::GameCharacterState::TOTAL_STATES; i++)
     {
-        if (this->animations[i] != NULL)
+        if (this->stateManagers[i] != NULL)
         {
-            delete this->animations[i];
-            this->animations[i] = NULL;
+            delete this->stateManagers[i];
+            this->stateManagers[i] = NULL;
         }
     }
 }
 
-void Game::GameCharacter::Init(Engine::EngineTexture *texture, Engine::EngineAnimation *animations[Game::GameCharacterState::TOTAL_STATES])
+void Game::GameCharacter::Init(Engine::EngineTexture *texture, CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES])
 {
-    if (animations != NULL)
+    if (states != NULL)
     {
         for (int i = 0; i > Game::GameCharacterState::TOTAL_STATES; i++)
         {
-            this->animations[i] = animations[i];
+            this->stateManagers[i] = states[i];
         }
     }
 
@@ -65,14 +65,14 @@ void Game::GameCharacter::SetTexture(Engine::EngineTexture *texture)
     this->texture = texture;
 }
 
-void Game::GameCharacter::SetAnimation(GameCharacterState state, Engine::EngineSprite *sprites, unsigned int totalCount, bool isLooped, Engine::AnimiationOrientation orientation)
+void Game::GameCharacter::SetStateManager(CharacterStateManager *stateManager)
 {
-    this->animations[state] = new Engine::EngineAnimation(this->texture, sprites, totalCount, isLooped, orientation);
+    this->stateManagers[stateManager->id] = stateManager;
 }
 
 void Game::GameCharacter::Render(Engine::EngineRenderer *renderer)
 {
-    Engine::EngineAnimation *currAnim = this->GetCurrentAnimation();
+    Engine::EngineAnimation *currAnim = this->GetCurrentStateManager()->GetAnimation();
     Engine::EngineSprite *clip = currAnim->GetCurrentClip();
     SDL_Rect *clipR = &(clip->r);
     SDL_Rect *camera = Game::GetCamera();
@@ -129,7 +129,14 @@ void Game::GameCharacter::SetMaxSpeed(float a)
 
 void Game::GameCharacter::SetState(Game::GameCharacterState state)
 {
-    this->currState = state;
+    SDL_Log("setting state: %u", state);
+    if (this->currStateManager != NULL)
+    {
+        this->currStateManager->cleanup(this);
+    }
+
+    this->currStateManager = this->stateManagers[state];
+    this->currStateManager->init(this);
 }
 
 void Game::GameCharacter::Move(Vector2D move)
@@ -165,7 +172,7 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 {
     // SDL_Log("button mask: %u - %u", buttonMask, Game::ButtonState::PRESS_UP | Game::ButtonState::PRESS_DOWN | Game::ButtonState::PRESS_LEFT | Game::ButtonState::PRESS_RIGHT);
     unsigned int newButtonState = 0;
-    Game::GameCharacterState newState = this->currState;
+    Game::GameCharacterState newState = this->currStateManager->GetState();
     // Game::Vector2D v;
 
     if ((buttonMask & Game::ButtonState::RELEASE_UP) != Game::ButtonState::RELEASE_UP) // if up button was not released
@@ -202,22 +209,15 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 
     if (this->button_state & Game::ButtonState::PRESS_RIGHT)
     {
-        this->v.x = 1;
-        this->v.y = 0;
-        // newState = Game::GameCharacterState::WALK_FORWARD;
         entry.dir = DirectionNotation::FORWARD;
     }
     else if (this->button_state & Game::ButtonState::PRESS_LEFT)
     {
-        this->v.x = -1;
-        this->v.y = 0;
-        // newState = Game::GameCharacterState::WALK_BACKWARD;
         entry.dir = DirectionNotation::BACK;
     }
 
     if (this->button_state & Game::ButtonState::PRESS_UP)
     {
-        this->v.y = -1;
         if (entry.dir == DirectionNotation::BACK)
         {
             entry.dir = DirectionNotation::UP_BACK;
@@ -233,7 +233,6 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
     }
     else if (this->button_state & Game::ButtonState::PRESS_DOWN)
     {
-        this->v.y = 1;
         if (entry.dir == DirectionNotation::BACK)
         {
             entry.dir = DirectionNotation::DOWN_BACK;
@@ -257,68 +256,32 @@ void Game::GameCharacter::Update(unsigned int buttonMask)
 
     Game::InputBufferInsert(&entry, this->inputBuffer);
 
-    if (buttonPressed)
-    {
-        // SDL_Log("buttons pressed");
-        this->Move(v);
-    }
-    else
-    {
-        if (
-            this->currState != GameCharacterState::INTRO ||
-            (this->currState == GameCharacterState::INTRO &&
-             this->animations[GameCharacterState::INTRO]->IsComplete()))
-        {
-            if (this->currSpeed > 1.f)
-            {
-                SDL_Log("decelerate x: %u | y: %u", v.x, v.y);
-                this->currSpeed = Game::Move(&(this->playerPos), &(this->v), this->currSpeed, -20.f);
-            }
-            else if (this->currSpeed < 1.f)
-            {
-                // Snap to 1.f
-                this->currSpeed = 1.f;
-                this->v.y = 0;
-                this->v.x = 0;
-            }
-
-            newState = Game::GameCharacterState::IDLE;
-        }
-    }
-
-    this->Animate(newState);
+    this->GetCurrentStateManager()->update(this);
+    this->Animate();
 }
 
-Engine::EngineAnimation *Game::GameCharacter::GetCurrentAnimation()
+// Engine::EngineAnimation *Game::GameCharacter::GetCurrentAnimation()
+// {
+//     return this->animations[this->currState];
+// }
+
+void Game::GameCharacter::Animate()
 {
-    return this->animations[this->currState];
+    this->someCounter++;
+    if (aniCounter % Game::GetAnimationMod() == 0)
+    {
+        if (frame != NULL)
+        {
+            delete frame;
+        }
+        frame = Game::GetFrameTexture(this->currStateManager->GetAnimation());
+        /// TODO: Decide whether it makes sense for the character to be driving the animation or if this should also be a function pointer;
+        this->currStateManager->GetAnimation()->Advance();
+    }
+    ++aniCounter;
 }
 
-void Game::GameCharacter::Animate(Game::GameCharacterState newState)
+Game::CharacterStateManager *Game::GameCharacter::GetCurrentStateManager()
 {
-    if (newState != this->currState)
-    {
-        if (currState != GameCharacterState::INTRO)
-        {
-            this->animations[this->currState]->Reset();
-        }
-        this->animations[newState]->Reset();
-        this->someCounter = 1;
-        this->currState = newState;
-        aniCounter = 0;
-    }
-    else
-    {
-        this->someCounter++;
-        if (aniCounter % Game::GetAnimationMod() == 0)
-        {
-            if (frame != NULL)
-            {
-                delete frame;
-            }
-            frame = Game::GetFrameTexture(this->GetCurrentAnimation());
-            this->animations[this->currState]->Advance();
-        }
-        ++aniCounter;
-    }
+    return this->currStateManager;
 }

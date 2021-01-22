@@ -58,9 +58,7 @@ int Engine::EngineInit(EngineInfo *info)
 
     unsigned int msPerTick = (unsigned int)((1.0f / (float)info->targetTicksPerSecond) * 1000);
     Engine::_.Window = window;
-    SDL_Log("before");
     Engine::_.WindowRenderer = new Engine::EngineRenderer(renderer);
-    SDL_Log("after");
     Engine::_.timer = new Engine::EngineTimer();
     Engine::_.msPerTick = msPerTick;
     /// TODO: Need a mechanism for creating Joystick References and passing them back to the game

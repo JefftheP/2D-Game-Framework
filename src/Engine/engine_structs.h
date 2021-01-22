@@ -129,7 +129,7 @@ namespace Engine
         bool isLooped;
         AnimiationOrientation orientation;
 
-        EngineAnimation(EngineTexture *texture, EngineSprite *rects, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
+        EngineAnimation(EngineTexture *texture, EngineSprite *sprites, int totalFrames, bool isLooped = false, AnimiationOrientation = AnimiationOrientation::CENTER);
         EngineSprite *GetCurrentClip();
         void Advance();
         void Reset(int frame = 0);

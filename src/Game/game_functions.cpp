@@ -1,6 +1,7 @@
+#include "../Engine/engine_functions.h"
 #include "game_functions.h"
 #include "game_globals.h"
-#include "../Engine/engine_functions.h"
+#include "game_character_states.h"
 
 Game::GameCharacter *character = NULL;
 Engine::EngineRenderer *renderer = NULL;
@@ -154,8 +155,11 @@ void Game::Init()
     // initialYPoint = BROCK_Y + introRects[0].h;
     // initialXPoint = BROCK_X + (introRects[0].w / 2);
 
-    character->SetAnimation(Game::GameCharacterState::INTRO, introRects, INTRO_FRAMES);
-    character->SetAnimation(Game::GameCharacterState::IDLE, idleRects, IDLE_FRAMES, true, Engine::AnimiationOrientation::LEFT);
+    Game::IntroState *intro = new Game::IntroState(new Engine::EngineAnimation(character->texture, introRects, INTRO_FRAMES));
+    Game::IdleState *idle = new Game::IdleState(new Engine::EngineAnimation(character->texture, idleRects, IDLE_FRAMES, true, Engine::AnimiationOrientation::LEFT));
+
+    character->SetStateManager(intro);
+    character->SetStateManager(idle);
     character->SetState(Game::GameCharacterState::INTRO);
 }
 
@@ -352,7 +356,7 @@ int Game::Render()
     renderer->RenderStart();
     renderer->Render(bg, Game::CAMERA);
 
-    SDL_Rect *clip = &(character->GetCurrentAnimation()->GetCurrentClip()->r);
+    SDL_Rect *clip = &(character->GetCurrentStateManager()->GetAnimation()->GetCurrentClip()->r);
 
     character->Render(renderer);
 

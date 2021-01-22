@@ -1,6 +1,17 @@
 #include "game_character_states.h"
+#include "game_movement.h"
 
 using namespace Game;
+
+Game::GameCharacterState CharacterStateManager::GetState()
+{
+    return this->id;
+}
+
+Engine::EngineAnimation *CharacterStateManager::GetAnimation()
+{
+    return this->animation;
+}
 
 ////////////////////////
 //  IntroStateManager //
@@ -8,20 +19,29 @@ using namespace Game;
 
 void Game::IntroStateInit(GameCharacter *character)
 {
+    IntroState *state = (IntroState *)(character->GetCurrentStateManager());
+    state->GetAnimation()->Reset();
 }
 
 void Game::IntroStateUpdate(GameCharacter *character)
 {
+    IntroState *state = (IntroState *)(character->GetCurrentStateManager());
+    if (state->GetAnimation()->IsComplete())
+    {
+        character->SetState(Game::GameCharacterState::IDLE);
+    }
 }
 
 void Game::IntroStateCleanup(GameCharacter *character)
 {
+    // noop
 }
 
 IntroState::IntroState(Engine::EngineAnimation *animation)
 {
     this->animation = animation;
     this->id = GameCharacterState::INTRO;
+    SDL_Log("in intro state constructor: %u", this->id);
     this->init = Game::IntroStateInit;
     this->update = Game::IntroStateUpdate;
     this->cleanup = Game::IntroStateCleanup;
@@ -35,10 +55,58 @@ IntroState::~IntroState() {}
 
 void Game::IdleStateInit(GameCharacter *character)
 {
+    IdleState *state = (IdleState *)(character->GetCurrentStateManager());
+    state->GetAnimation()->Reset();
 }
 
 void Game::IdleStateUpdate(GameCharacter *character)
 {
+    IdleState *state = (IdleState *)(character->GetCurrentStateManager());
+    Game::InputBufferEntry entry = character->inputBuffer[0];
+    bool buttonPressed = entry.dir != Game::DirectionNotation::NEUTRAL;
+
+    if (character->button_state & Game::ButtonState::PRESS_RIGHT)
+    {
+        character->v.x = 1;
+        character->v.y = 0;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_LEFT)
+    {
+        character->v.x = -1;
+        character->v.y = 0;
+    }
+
+    if (character->button_state & Game::ButtonState::PRESS_UP)
+    {
+        character->v.y = -1;
+    }
+    else if (character->button_state & Game::ButtonState::PRESS_DOWN)
+    {
+        character->v.y = 1;
+    }
+
+    if (buttonPressed)
+    {
+        // SDL_Log("buttons pressed");
+        character->Move(character->v);
+    }
+    else
+    {
+        if (character->currSpeed > 1.f)
+        {
+            SDL_Log("decelerate x: %u | y: %u", character->v.x, character->v.y);
+            character->currSpeed = Game::Move(&(character->playerPos), &(character->v), character->currSpeed, -20.f);
+        }
+        else if (character->currSpeed < 1.f)
+        {
+            SDL_Log("snapped to 0");
+
+            // Snap to 1.f
+            character->currSpeed = 1.f;
+            character->v.y = 0;
+            character->v.x = 0;
+        }
+    }
 }
 
 void Game::IdleStateCleanup(GameCharacter *character)

@@ -6,6 +6,8 @@
 
 namespace Game
 {
+    struct GameCharacter;
+
     struct Vector2D
     {
         float x;
@@ -109,6 +111,21 @@ namespace Game
         TOTAL_STATES
     };
 
+    typedef void (*StateInit)(GameCharacter *character);
+    typedef void (*StateUpdate)(GameCharacter *character);
+    typedef void (*StateCleanup)(GameCharacter *character);
+
+    struct CharacterStateManager
+    {
+        Game::GameCharacterState id;
+        Engine::EngineAnimation *animation;
+        StateInit init = NULL;
+        StateUpdate update = NULL;
+        StateCleanup cleanup = NULL;
+        Game::GameCharacterState GetState();
+        Engine::EngineAnimation *GetAnimation();
+    };
+
     struct GameCharacter
     {
         SDL_Point playerPos;
@@ -119,13 +136,13 @@ namespace Game
         float maxSpeed;
         Vector2D v;
         SDL_Rect onScreen;
-        GameCharacterState currState;
         unsigned int someCounter = 1;
         unsigned int button_state = 0;
         InputBufferEntry inputBuffer[INPUT_BUFFER_SIZE];
 
         Engine::EngineTexture *texture = NULL;
-        Engine::EngineAnimation *animations[GameCharacterState::TOTAL_STATES];
+        CharacterStateManager *currStateManager = NULL;
+        CharacterStateManager *stateManagers[GameCharacterState::TOTAL_STATES];
 
         GameCharacter();
         GameCharacter(int x, int y, Engine::EngineTexture *texture);
@@ -135,15 +152,14 @@ namespace Game
         void SetMaxSpeed(float a);
         void SetState(GameCharacterState state);
 
-        void Init(Engine::EngineTexture *texture, Engine::EngineAnimation *animations[Game::GameCharacterState::TOTAL_STATES] = NULL);
+        void Init(Engine::EngineTexture *texture, CharacterStateManager *states[Game::GameCharacterState::TOTAL_STATES] = NULL);
         void SetTexture(Engine::EngineTexture *texture);
-        void SetAnimation(GameCharacterState state, Engine::EngineSprite *sprites, unsigned int totalCount, bool isLooped = false, Engine::AnimiationOrientation orientation = Engine::AnimiationOrientation::CENTER);
-        void Animate(Game::GameCharacterState newState);
+        void SetStateManager(CharacterStateManager *stateManager);
+        void Animate();
         void Render(Engine::EngineRenderer *renderer);
         void Move(Vector2D move);
         void Update(unsigned int buttonMask);
-
-        Engine::EngineAnimation *GetCurrentAnimation();
+        CharacterStateManager *GetCurrentStateManager();
     };
 
     struct GameLine

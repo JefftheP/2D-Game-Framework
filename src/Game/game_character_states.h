@@ -4,92 +4,79 @@
 
 namespace Game
 {
-    typedef void (*StateInit)(GameCharacter *character);
-    typedef void (*StateUpdate)(GameCharacter *character);
-    typedef void (*StateCleanup)(GameCharacter *character);
-
-    struct GameCharacterStateStruct
-    {
-        Game::GameCharacterState id;
-        Engine::EngineAnimation *animation;
-        StateInit init = NULL;
-        StateUpdate update = NULL;
-        StateCleanup cleanup = NULL;
-    };
-
-    struct IntroState : GameCharacterStateStruct
+    struct IntroState : CharacterStateManager
     {
         IntroState(Engine::EngineAnimation *animation);
         ~IntroState();
     };
 
-    struct IdleState : GameCharacterStateStruct
+    struct IdleState : CharacterStateManager
     {
         IdleState(Engine::EngineAnimation *animation);
         ~IdleState();
     };
-    struct BlockingState : GameCharacterStateStruct
+    struct BlockingState : CharacterStateManager
     {
         BlockingState(Engine::EngineAnimation *animation);
         ~BlockingState();
     };
 
-    struct ReelingState : GameCharacterStateStruct
+    struct ReelingState : CharacterStateManager
     {
         ReelingState(Engine::EngineAnimation *animation);
         ~ReelingState();
     };
 
-    struct WalkingForwardState : GameCharacterStateStruct
+    struct WalkingForwardState : CharacterStateManager
     {
         WalkingForwardState(Engine::EngineAnimation *animation);
         ~WalkingForwardState();
     };
 
-    struct WalkingBackwardState : GameCharacterStateStruct
+    struct WalkingBackwardState : CharacterStateManager
     {
         WalkingBackwardState(Engine::EngineAnimation *animation);
         ~WalkingBackwardState();
     };
 
-    struct JumpingState : GameCharacterStateStruct
+    struct JumpingState : CharacterStateManager
     {
         JumpingState(Engine::EngineAnimation *animation);
         ~JumpingState();
     };
 
-    struct FallingState : GameCharacterStateStruct
+    struct FallingState : CharacterStateManager
     {
         FallingState(Engine::EngineAnimation *animation);
         ~FallingState();
     };
 
-    struct SuperJumpingState : GameCharacterStateStruct
+    struct SuperJumpingState : CharacterStateManager
     {
         SuperJumpingState(Engine::EngineAnimation *animation);
         ~SuperJumpingState();
     };
 
-    struct RunningState : GameCharacterStateStruct
+    struct RunningState : CharacterStateManager
     {
         RunningState(Engine::EngineAnimation *animation);
         ~RunningState();
     };
 
-    struct LandingState : GameCharacterStateStruct
+    struct LandingState : CharacterStateManager
     {
         LandingState(Engine::EngineAnimation *animation);
         ~LandingState();
     };
 
-    struct SlidingState : GameCharacterStateStruct
+    struct SlidingState : CharacterStateManager
     {
         SlidingState(Engine::EngineAnimation *animation);
         ~SlidingState();
     };
 
     // This one I need to rethink
-    struct AttackingState : GameCharacterStateStruct
+    struct AttackingState : CharacterStateManager
     {
         AttackingState(Engine::EngineAnimation *animation);
         ~AttackingState();
